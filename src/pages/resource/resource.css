@@ -1,0 +1,54 @@
+.container {
+    font-family: Arial, sans-serif;
+    
+    text-align: left; /* Ensure text aligns to the left */
+  }
+  
+  p {
+    line-height: 1.6;
+    margin: 10px 0;
+  }
+  
+  
+  
+  h3 {
+    margin-top: 20px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #333;
+  }
+
+  h4 {
+    font-size: 1rem;
+    
+    
+  }
+
+  /* systemFeedback.css */
+
+.container {
+    font-family: Arial, sans-serif;
+    text-align: left; /* Ensure text aligns to the left */
+  }
+  
+  p {
+    line-height: 1.6;
+    margin: 10px 0;
+  }
+  
+  h3 {
+    margin-top: 20px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  h4 {
+    font-size: 1rem;
+  }
+  
+.less-container {
+    margin-top: 150px;
+}
+  
+  

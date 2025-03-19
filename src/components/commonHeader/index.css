@@ -1,0 +1,15 @@
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #001529; /* Ensure the header has the same color as the blue bar */
+    padding: 0 20px; /* Add some padding to the sides */
+    height: 64px; /* Adjust height if necessary */
+    box-sizing: border-box; /* Ensure padding is included in the height */
+}
+
+.avatar-item {
+    display: flex;
+    align-items: center;
+    margin-left: auto; /* Push the avatar to the far right */
+}

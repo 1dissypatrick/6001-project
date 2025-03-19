@@ -1,0 +1,104 @@
+
+  
+  .search-button {
+    margin-left: 10px;
+  }
+  
+  .advanced-search {
+    margin-left: 10px;
+    color: #1890ff;
+  }
+  
+  .content {
+    display: flex;
+    margin-top: 20px;
+  }
+  
+  .aside {
+    width: 25%;
+    padding: 10px;
+    border-right: 1px solid #ddd;
+  }
+  
+  .filter-section {
+    margin-bottom: 20px;
+  }
+  
+  .results-body{
+    width: 75%; padding: 10px;
+  }
+  
+  .results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .results-controls label {
+    margin-right: 10px;
+  }
+  
+  .results {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .result-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 5px;
+  }
+  
+  .result-details {
+    display: flex;
+    align-items: flex-start;
+    margin-left: 10px;
+  }
+  
+  .result-details img {
+    width: 80px;
+    height: 80px;
+    margin-right: 10px;
+  }
+  
+  .result-details div {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  header {
+    position: sticky; /* Makes the element sticky */
+    top: 0; /* Keeps it at the top of the page */
+    z-index: 1000; /* Ensures it stays above other elements */
+    background-color: white; /* Optional: Keeps background consistent */
+    padding: 10px; /* Adds padding */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow */
+}
+
+.header-title {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center-aligns the title */
+    position: relative; /* Ensures the button is positioned properly */
+}
+
+.header-title h1 {
+    margin: 0 auto; /* Centers the title */
+    flex-grow: 1; /* Ensures the title occupies available space */
+    text-align: center; /* Ensures it is visually centered */
+}
+
+.back-to-home {
+    position: absolute; /* Positions the button independently */
+    right: 0; /* Aligns the button to the right side */
+    font-size: 16px;
+}
+
+
+
+
+  

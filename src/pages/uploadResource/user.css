@@ -1,0 +1,5 @@
+.flex-box {
+    display: flex;         /* Use flexbox layout */
+    align-items: center;   /* Align items vertically in the center */
+    gap: 5px;              /* Add space between the buttons */
+}

@@ -1,0 +1,15 @@
+.main-container {
+    font-size: 24px;
+    color: #fff;
+    margin: 0;
+    flex-grow: 1;
+    text-align: center;
+    font-weight: bold; /* Make the text bold */
+    font-family: 'Arial', sans-serif; /* Ensure a clean font style */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Light shadow for a floating effect */
+    position: sticky; /* Makes the element sticky */
+    top: 0; /* Keeps it at the top of the page */
+    z-index: 1000; /* Ensures it stays above other elements */
+}
