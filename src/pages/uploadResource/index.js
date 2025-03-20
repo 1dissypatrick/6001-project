@@ -7,10 +7,10 @@ const CheckboxGroup = Checkbox.Group;
 
 // Options for Subjects
 const plainOptions = [
-    'Chinese language education', 'English Language Education', 'Mathematics education',
-    'Science education', 'Personal, social and humanistic education', 'Physical education',
-    'Arts and Humanities', 'History', 'Business and Communication',
-    'Career and Technical Education', 'General Studies'
+    'Chinese Language Education', 'English Language Education', 'Mathematics Education', 
+    'Science Education', 'Social and Humanistic Education', 'Physical Education', 
+    'Arts and Humanities', 'History', 'Business and Communication', 
+    'Career and Technical Education', 'General Studies',
 ];
 
 // Options for Materials Types

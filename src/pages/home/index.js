@@ -7,10 +7,10 @@ import './home.css';
 const { Search } = Input;
 const CheckboxGroup = Checkbox.Group;
 const plainOptions = [
-    'Chinese language education', 'English Language Education', 'Mathematics education', 
-    'Science education', 'Personal, social and humanistic education', 'Physical education', 
+    'Chinese Language Education', 'English Language Education', 'Mathematics Education', 
+    'Science Education', 'Social and Humanistic Education', 'Physical Education', 
     'Arts and Humanities', 'History', 'Business and Communication', 
-    'Career and Technical Education', 'General Studies',
+    'Career and Technical Education', 'General Studies', 123
 ];
 
 const Home = () => {

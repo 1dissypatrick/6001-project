@@ -1,5 +1,5 @@
 import React from 'react';
-import { Input, Checkbox, Divider, Dropdown, Button, Space, Rate, Col, Row } from 'antd';
+import { Input, Checkbox, Divider, Dropdown, Button, Space, Col, Row } from 'antd';
 import { DownOutlined, HomeOutlined } from '@ant-design/icons'; // Import Home icon
 import { useNavigate } from 'react-router-dom';
 import useSearchResult from './useSearchResult';
@@ -9,9 +9,9 @@ const { Search } = Input;
 const CheckboxGroup = Checkbox.Group;
 
 const plainOptions = [
-    'Chinese language education', 'English Language Education', 'Mathematics education',
-    'Science education', 'Personal, social and humanistic education', 'Physical education',
-    'Arts and Humanities', 'History', 'Business and Communication',
+    'Chinese Language Education', 'English Language Education', 'Mathematics Education', 
+    'Science Education', 'Social and Humanistic Education', 'Physical Education', 
+    'Arts and Humanities', 'History', 'Business and Communication', 
     'Career and Technical Education', 'General Studies',
 ];
 
@@ -33,7 +33,7 @@ const pages = [
 ];
 
 const title = [
-    { label: 'Rating', key: '1' },
+    { label: 'Title', key: '1' },
     { label: 'Date Added', key: '2' },
 ];
 
@@ -50,7 +50,7 @@ const SearchResult = () => {
         handleMenuClick,
         handlePageSize,
         handleSort,
-        handleRateChange
+        // handleRateChange
     } = useSearchResult();
 
     const renderResults = () => fileData.map((file, index) => (
@@ -64,14 +64,13 @@ const SearchResult = () => {
                                 {file.fileName || 'No File Name'}
                             </a>
                         </h3>
-                        <p><strong>Rate:</strong> {file.rating || 'No Rating'}</p>
+                        {/* <p><strong>Rate:</strong> {file.rating || 'No Rating'}</p> */}
                         <p><strong>Subject:</strong> {file.subjects?.join(', ') || 'N/A'}</p>
                         <p><strong>Education Level:</strong> {file.educationLevel || 'N/A'}</p>
                         <p><strong>Material Type:</strong> {file.materialTypes?.join(', ') || 'N/A'}</p>
-                        <p><strong>Education Level:</strong> {file.educationLevel || 'N/A'}</p>
                         <p><strong>Author:</strong> {file.username || 'N/A'}</p>
                         <p><strong>Date Added:</strong> {file.date ? new Date(file.date).toLocaleDateString() : 'N/A'}</p>
-                        <Rate value={file.rating || 0} onChange={value => handleRateChange(value, index)} />
+                        {/* <Rate value={file.rating || 0} onChange={value => handleRateChange(value, index)} /> */}
                     </div>
                 </div>
             </Col>
