@@ -7,21 +7,25 @@ const Review = () => {
     const [fileData, setFileData] = useState([]);
 
     useEffect(() => {
-        fetchFiles();
+        fetchAllFiles();
     }, []);
 
-    const fetchFiles = async () => {
+    const fetchAllFiles = async () => {
         try {
-            const { data } = await axios.get('http://localhost:5001/files');
-            setFileData(data.files);
+            const { data } = await axios.get('http://localhost:5001/all-files'); // Call the new endpoint
+            setFileData(data.files); // Update state with all files
         } catch (error) {
-            console.error('Error fetching files:', error);
+            console.error('Error fetching all files:', error);
+            
         }
     };
-
     
 
     const columns = [
+        {
+            title: 'Username',
+            dataIndex: 'username', // Add the username column
+        },
         {
             title: 'File Name',
             dataIndex: 'fileName',

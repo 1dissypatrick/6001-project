@@ -31,13 +31,17 @@ const handleSubmit = async (values) => {
     return (
         <Form className="register-container" onFinish={handleSubmit}>
             <div className="register_title">Register System</div>
-            <Form.Item
-                label="Email Address:"
-                name="emailAddress"
-                rules={[{ required: true, message: 'Please input your Email Address!' }]}
-            >
-                <Input placeholder="Input your Email Address" />
-            </Form.Item>
+        <Form.Item
+            label="Email Address:"
+            name="emailAddress"
+            rules={[
+                { required: true, message: 'Please input your Email Address!' },
+                { type: 'email', message: 'Please enter a valid email address!' } // Email format validation
+            ]}
+>
+    <Input placeholder="Input your Email Address" />
+</Form.Item>
+
             <Form.Item
                 label="Username"
                 name="username"

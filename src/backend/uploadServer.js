@@ -89,8 +89,16 @@ app.get('/files', async (req, res) => {
     }
 });
 
-
-
+// New endpoint to fetch all files
+app.get('/all-files', async (req, res) => {
+    try {
+        const files = await File.find(); // Fetch all files from the database
+        res.status(200).json({ files });
+    } catch (error) {
+        console.error('Error fetching all files:', error);
+        res.status(500).send('Error fetching all files');
+    }
+});
 
 // Start server
 app.listen(PORT, () => {

@@ -10,7 +10,7 @@ const plainOptions = [
     'Chinese Language Education', 'English Language Education', 'Mathematics Education', 
     'Science Education', 'Social and Humanistic Education', 'Physical Education', 
     'Arts and Humanities', 'History', 'Business and Communication', 
-    'Career and Technical Education', 'General Studies', 123
+    'Career and Technical Education', 'General Studies', 
 ];
 
 const Home = () => {
