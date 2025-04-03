@@ -16,15 +16,28 @@ const Review = () => {
             setFileData(data.files); // Update state with all files
         } catch (error) {
             console.error('Error fetching all files:', error);
-            
         }
     };
+
+    const deleteFile = async (fileId) => {
+        try {
+            const isConfirmed = window.confirm("Are you sure you want to delete this file?");
+            if (!isConfirmed) {
+                return; // If not confirmed, exit the function
+            }
+            
+            const response = await axios.delete(`http://localhost:5001/files/${fileId}`);
+            console.log(response.data.message); // Log success message
+            fetchAllFiles(); // Refresh the file list
+        } catch (error) {
+            console.error('Error deleting file:', error.response?.data?.message || error.message);
+        }}
     
 
     const columns = [
         {
             title: 'Username',
-            dataIndex: 'username', // Add the username column
+            dataIndex: 'username',
         },
         {
             title: 'File Name',
@@ -51,7 +64,7 @@ const Review = () => {
         {
             title: 'Material Types',
             dataIndex: 'materialTypes',
-            render: (materialTypes) => materialTypes ? materialTypes.join(', ') : 'N/A', // Handle undefined material types
+            render: (materialTypes) => materialTypes ? materialTypes.join(', ') : 'N/A',
         },
         {
             title: 'Education Level',
@@ -63,17 +76,18 @@ const Review = () => {
             render: (date) => new Date(date).toLocaleDateString(),
         },
         {
-                    title: 'Restrictions',
-                    render:(rowData) =>{
-                        //有return()就可以用jsx 
-                        return(
-                            <div className='flex-box'>                        
-                                <Button type="primary" >Restrictions</Button>
-        
-                            </div>
-                        )
-                    }
-                },
+            title: 'Restrictions',
+            render: (rowData) => (
+                <div className='flex-box'>
+                    <Button
+                        type="primary"
+                        onClick={() => deleteFile(rowData._id)} // Delete file button
+                    >
+                        Delete File
+                    </Button>
+                </div>
+            ),
+        },
     ];
 
     return (

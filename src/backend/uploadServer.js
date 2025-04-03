@@ -100,6 +100,20 @@ app.get('/all-files', async (req, res) => {
     }
 });
 
+app.delete('/files/:id', async (req, res) => {
+    try {
+        const fileId = req.params.id;
+        const deletedFile = await File.findByIdAndDelete(fileId); // Assuming MongoDB
+        if (!deletedFile) {
+            return res.status(404).send({ message: 'File not found' });
+        }
+        res.status(200).send({ message: 'File deleted successfully' });
+    } catch (error) {
+        res.status(500).send({ message: 'Error deleting file', error });
+    }
+});
+
+
 // Start server
 app.listen(PORT, () => {
     console.log(`Upload server is running on port ${PORT}`);
