@@ -33,15 +33,21 @@ const storage = multer.diskStorage({
         cb(null, file.originalname); // Use the original file name
     },
 });
-const upload = multer({ storage });
+const upload = multer({ 
+    storage: storage,
+    limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit (adjust as needed)
+});
 
 app.use('/uploads', express.static('D:/6000 project/my-app/uploads'));
 
-app.post('/upload', authenticateUser, upload.single('file'), async (req, res) => {
+app.post('/upload', authenticateUser, upload.fields([
+    { name: 'file', maxCount: 1 },
+    { name: 'coverPage', maxCount: 1 }
+]), async (req, res) => {
     try {
         const { documentName, subjects, educationLevel, materialTypes } = req.body;
 
-        if (!req.file) {
+        if (!req.files.file || !req.files.file[0]) {
             return res.status(400).send('No file uploaded');
         }
         if (!documentName || !subjects || !educationLevel || !materialTypes) {
@@ -49,12 +55,13 @@ app.post('/upload', authenticateUser, upload.single('file'), async (req, res) =>
         }
 
         const newFile = new File({
-            fileName: req.file.originalname,
+            fileName: req.files.file[0].originalname,
             documentName,
             subjects: JSON.parse(subjects),
             materialTypes: JSON.parse(materialTypes),
             educationLevel,
-            username: req.username // Use the username from the middleware
+            username: req.username,
+            coverPage: req.files.coverPage ? req.files.coverPage[0].originalname : null
         });
         await newFile.save();
 

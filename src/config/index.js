@@ -39,19 +39,20 @@ const routes = [
         name: 'aiConclusion',
         label: 'AiConclusion',
         icon: 'SolutionOutlined',
-        url: '/aiConclusion/index'
+        url: '/aiConclusion/index',
+        show: user => user?.role === 'admin',
     }, 
     {
         path: '/other',
         label: 'Admin',
         icon: 'SettingOutlined',
         children: [
-            {
-                path: '/other/graphicalStatistics',
-                name: 'graphicalStatistics',
-                label: 'Graphical Statistics',
-                icon: 'BarChartOutlined',
-            },
+            // {
+            //     path: '/other/graphicalStatistics',
+            //     name: 'graphicalStatistics',
+            //     label: 'Graphical Statistics',
+            //     icon: 'BarChartOutlined',
+            // },
             {
                 path: '/other/review',
                 name: 'review',

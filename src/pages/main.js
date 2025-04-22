@@ -1,20 +1,14 @@
 //作爲主頁面和幫子頁面寫出口
-import React,{useState} from 'react'
+import React from 'react'
 import {Outlet} from 'react-router-dom'
 //$ npm install antd --save
-import { Button, Layout, Menu, theme } from 'antd';
-import {
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-  UploadOutlined,
-  UserOutlined,
-  VideoCameraOutlined,
-} from '@ant-design/icons';
+import {  Layout, theme } from 'antd';
+
 import CommonAside from '../components/commonAside';
 import CommonHeader from '../components/commonHeader';
 import {useSelector} from 'react-redux'
 
-const { Header, Sider, Content } = Layout;
+const { Content } = Layout;
 
 
 const Main = () => {

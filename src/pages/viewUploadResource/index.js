@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, message } from 'antd';
+import { Table, message, Image } from 'antd';
 import axios from 'axios';
 import './user.css';
 
@@ -12,25 +12,45 @@ const ViewUploadResource = () => {
 
     const fetchFiles = async () => {
         try {
-            const username = localStorage.getItem('username'); // Retrieve the logged-in username
+            const username = localStorage.getItem('username');
 
             const { data } = await axios.get('http://localhost:5001/files', {
                 headers: {
-                    username, // Send the username in the request headers
+                    username,
                 },
             });
 
-            setFileData(data.files); // Update state with the user's files
+            setFileData(data.files);
         } catch (error) {
             console.error('Error fetching files:', error);
-            message.error('Error fetching files'); // Notify the user of fetch failure
+            message.error('Error fetching files');
         }
     };
 
     const columns = [
         {
+            title: 'Cover Page',
+            dataIndex: 'coverPage',
+            render: (coverPage) => (
+                coverPage ? (
+                    <Image
+                        width={100}
+                        src={`http://localhost:5001/uploads/${encodeURIComponent(coverPage)}`}
+                        alt="Cover"
+                        fallback="https://via.placeholder.com/100?text=No+Cover"
+                    />
+                ) : (
+                    <Image
+                        width={100}
+                        src="https://via.placeholder.com/100?text=No+Cover"
+                        alt="No Cover"
+                    />
+                )
+            ),
+        },
+        {
             title: 'Username',
-            dataIndex: 'username', // Add the username column
+            dataIndex: 'username',
         },
         {
             title: 'File Name',
@@ -52,12 +72,12 @@ const ViewUploadResource = () => {
         {
             title: 'Subjects',
             dataIndex: 'subjects',
-            render: (subjects) => (subjects ? subjects.join(', ') : 'N/A'), // Handle undefined subjects gracefully
+            render: (subjects) => (subjects ? subjects.join(', ') : 'N/A'),
         },
         {
             title: 'Material Types',
             dataIndex: 'materialTypes',
-            render: (materialTypes) => (materialTypes ? materialTypes.join(', ') : 'N/A'), // Handle undefined material types
+            render: (materialTypes) => (materialTypes ? materialTypes.join(', ') : 'N/A'),
         },
         {
             title: 'Education Level',
@@ -66,7 +86,7 @@ const ViewUploadResource = () => {
         {
             title: 'Date',
             dataIndex: 'date',
-            render: (date) => (date ? new Date(date).toLocaleDateString() : 'N/A'), // Handle undefined dates
+            render: (date) => (date ? new Date(date).toLocaleDateString() : 'N/A'),
         },
     ];
 
@@ -76,7 +96,7 @@ const ViewUploadResource = () => {
                 rowKey="_id"
                 columns={columns}
                 dataSource={fileData}
-                pagination={{ pageSize: 10 }} // Optional: Paginate to show 10 rows per page
+                pagination={{ pageSize: 10 }}
             />
         </div>
     );

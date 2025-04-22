@@ -7,15 +7,13 @@ import Main from '../pages/main'
 import Home from '../pages/home'
 import Recommendation from '../pages/recommendation/index2'
 import UploadResource from '../pages/uploadResource'
-import GraphicalStatistics from '../pages/other/graphicalStatistics'
 import Review from '../pages/other/review'
 import Login from '../pages/login'
 import Resource from '../pages/resource'
 import Register from '../pages/register'
 import SearchResult from '../pages/searchResult'
 import ViewUploadResource from '../pages/viewUploadResource'
-import AiConclusion from '../pages/aiConclusion'
-
+import AiConclusion from '../pages/aiConclusion/index1'
 
 const routes = [
     {
@@ -54,10 +52,7 @@ const routes = [
             {
                 path:'other',
                 children:[
-                    {
-                        path:'graphicalStatistics',
-                        Component:GraphicalStatistics
-                    },
+                    
                     {
                         path:'review',
                         Component:Review

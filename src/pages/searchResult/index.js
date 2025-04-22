@@ -1,6 +1,6 @@
 import React from 'react';
-import { Input, Checkbox, Divider, Dropdown, Button, Space, Col, Row } from 'antd';
-import { DownOutlined, HomeOutlined } from '@ant-design/icons'; // Import Home icon
+import { Input, Checkbox, Divider, Dropdown, Button, Space, Col, Row, Image } from 'antd';
+import { DownOutlined, HomeOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import useSearchResult from './useSearchResult';
 import './searchResult.css';
@@ -50,18 +50,43 @@ const SearchResult = () => {
         handleMenuClick,
         handlePageSize,
         handleSort,
-        // handleRateChange
     } = useSearchResult();
 
     const renderResults = () => fileData.map((file, index) => (
         <Row gutter={16} key={file._id} className="result-row">
             <Col span={24}>
+            
                 <div className="result-item">
-                    <div className="result-content">
+                <div className="cover-page-container">
+                {file.coverPage && (
+    <div style={{ 
+        width: '145px',
+        height: '200px',
+        marginBottom: '15px',
+        overflow: 'hidden',
+        borderRadius: '8px'
+    }}>
+        <Image
+            width={145}
+            height={200}
+            src={`http://localhost:5001/uploads/${encodeURIComponent(file.coverPage)}`}
+            alt="Cover Page"
+            style={{ 
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover'
+            }}
+            
+        />
+    </div>
+)}
+            </div>
+            <div className="result-content" style={{ marginLeft: file.coverPage ? '20px' : '0' }}>
+                        
                         <h3>
                             <a href={`http://localhost:5001/uploads/${encodeURIComponent(file.fileName)}`}
                                 target="_blank" rel="noopener noreferrer">
-                                {file.fileName || 'No File Name'}
+                                {file.documentName || file.fileName || 'Untitled Document'}
                             </a>
                         </h3>
                         {/* <p><strong>Rate:</strong> {file.rating || 'No Rating'}</p> */}
@@ -72,27 +97,29 @@ const SearchResult = () => {
                         <p><strong>Date Added:</strong> {file.date ? new Date(file.date).toLocaleDateString() : 'N/A'}</p>
                         {/* <Rate value={file.rating || 0} onChange={value => handleRateChange(value, index)} /> */}
                     </div>
+
                 </div>
             </Col>
         </Row>
     ));
 
+
     return (
         <div className="container">
-    <header>
-        <div className="header-title">
-            <h1>Search Resources</h1>
-            <Button 
-                type="link" 
-                className="back-to-home" 
-                onClick={() => navigate('/')} 
-                icon={<HomeOutlined />}
-            >
-                Back to Home
-            </Button>
-        </div>
-        <Search placeholder="Enter your keyword(s) here" onSearch={onSearch} />
-    </header>
+            <header>
+                <div className="header-title">
+                    <h1>Search Resources</h1>
+                    <Button 
+                        type="link" 
+                        className="back-to-home" 
+                        onClick={() => navigate('/')} 
+                        icon={<HomeOutlined />}
+                    >
+                        Back to Home
+                    </Button>
+                </div>
+                <Search placeholder="Enter your keyword(s) here" onSearch={onSearch} />
+            </header>
 
             <div className="content">
                 <div className="aside">
@@ -138,7 +165,9 @@ const SearchResult = () => {
                             </Dropdown>
                         </div>
                     </div>
-                    {renderResults()}
+                    <div className="results">
+                        {renderResults()}
+                    </div>
                 </div>
             </div>
         </div>

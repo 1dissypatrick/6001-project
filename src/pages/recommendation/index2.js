@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Col, Row, Form, message } from 'antd';
+import { Col, Row, Form, message, Image } from 'antd';
 import { UserOutlined } from '@ant-design/icons'; // Import the User icon
 import axios from 'axios';
 import './index.css'; // Adjust or remove this if you don't have any specific styles yet
@@ -101,32 +101,84 @@ const Recommendation = () => {
               key={`col-${rowIndex}-${colIndex}`}
             >
               <Form className="search-container">
-                {/* Filename in shallow blue and clickable */}
-                <h3 style={{ color: '#1890ff' }}>
-                  <button
-                    onClick={() => handleFileOpen(file)} // Handle file opening and tracking
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      padding: 0,
-                      color: '#1890ff',
-                      cursor: 'pointer',
-                      textAlign: 'left',
-                      fontSize: 'inherit',
-                      fontFamily: 'inherit',
-                    }}
-                  >
-                    {file.fileName || 'No File Name'}
-                  </button>
-                </h3>
-                {/* Username with icon */}
-                <p>
-                  <UserOutlined style={{ marginRight: '8px', color: '#666' }} /> {/* Add the user icon */}
-                  {file.username || 'N/A'} {/* Username */}
-                  <span style={{ marginLeft: '8px', color: '#999' }}>
-                    {file.date ? new Date(file.date).toLocaleDateString() : 'N/A'} {/* Date */}
-                  </span>
-                </p>
+                {/* Cover Page at the top */}
+                {file.coverPage && (
+                  <div style={{ 
+                    width: '100%', 
+                    height: '200px',
+                    marginBottom: '15px',
+                    overflow: 'hidden',
+                    borderRadius: '8px',
+                    backgroundColor: '#f5f5f5' // Fallback background
+                  }}>
+                    <Image
+                      width="100%"
+                      height="100%"
+                      src={`http://localhost:5001/uploads/${encodeURIComponent(file.coverPage)}`}
+                      alt="Cover Page"
+                      style={{ 
+                        objectFit: 'cover',
+                        width: '100%',
+                        height: '100%'
+                      }}
+                      preview={false}
+                    />
+                  </div>
+                )}
+                
+                {/* Content container pushed to bottom */}
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'flex-end',
+                  flexGrow: 1,
+                  width: '100%'
+                }}>
+                  <div style={{ marginTop: 'auto' }}>
+                  <p style={{ marginBottom: '4px' }}>
+                  {/* Document name */}
+                  <h3 style={{ 
+                    color: '#1890ff',
+                    marginBottom: '8px',
+                    wordBreak: 'break-word'
+                  }}>
+                    <button
+                      onClick={() => handleFileOpen(file)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        padding: 0,
+                        color: '#1890ff',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        fontSize: 'inherit',
+                        fontFamily: 'inherit',
+                      }}
+                    >
+                      {file.documentName || file.fileName || 'Untitled Document'}
+                    </button>
+                  </h3>
+                  
+                  {/* Username and date */}
+                  
+
+                    </p>
+                    <div style={{ 
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginTop: 'auto'
+                  }}>
+                    <span>
+                      <UserOutlined style={{ marginRight: '8px', color: '#666' }} />
+                      {file.username || 'N/A'}
+                    </span>
+                    <span style={{ color: '#999' }}>
+                      {file.date ? new Date(file.date).toLocaleDateString() : 'N/A'}
+                    </span>
+                  </div>
+                  </div>
+                </div>
               </Form>
             </Col>
           ))}

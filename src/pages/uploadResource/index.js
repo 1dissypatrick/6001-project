@@ -21,6 +21,7 @@ const materialOptions = [
 
 const UploadResource = () => {
     const [file, setFile] = useState(null); // Store the selected file
+    const [coverPage, setCoverPage] = useState(null);
     const [formVisible, setFormVisible] = useState(false);
     const [checkedList, setCheckedList] = useState([]); // Subject selection
     const [materialList, setMaterialList] = useState([]); // Material Types selection
@@ -31,6 +32,11 @@ const UploadResource = () => {
         setFile(file); // Store the selected file
         setFormVisible(true); // Show the form after file selection
         return false; // Prevent automatic upload
+    };
+
+    const handleBeforeCoverUpload = (file) => {
+        setCoverPage(file);
+        return false;
     };
 
     const handleFormSubmit = async (values) => {
@@ -49,6 +55,9 @@ const UploadResource = () => {
             }
             const formData = new FormData();
             formData.append('file', file);
+            if (coverPage) {
+                formData.append('coverPage', coverPage);
+            }
             formData.append('documentName', values.name);
             formData.append('subjects', JSON.stringify(checkedList));
             formData.append('materialTypes', JSON.stringify(materialList));
@@ -67,6 +76,7 @@ const UploadResource = () => {
                 setFormVisible(false);
                 form.resetFields();
                 setFile(null);
+                setCoverPage(null);
             } else {
                 message.error('Error uploading resource');
             }
@@ -80,6 +90,7 @@ const UploadResource = () => {
     const handleChangeFile = () => {
         setFormVisible(false);
         setFile(null);
+        setCoverPage(null);
     };
 
     const onChangeSubjects = (list) => setCheckedList(list); // Subject selection handler
@@ -139,7 +150,25 @@ const UploadResource = () => {
                         </Form.Item>
 
                         <Divider />
+                        <p>Cover Page (Optional):</p>
+                        <Upload 
+                            beforeUpload={handleBeforeCoverUpload}
+                            accept="image/*"
+                            maxCount={1}
+                            showUploadList={true}
+                        >
+                            <Button icon={<UploadOutlined />}>
+                                Click to Upload Cover Image
+                            </Button>
+                        </Upload>
+                        {coverPage && (
+                            <div style={{ marginTop: '10px' }}>
+                                <p>Selected Cover: {coverPage.name}</p>
+                            </div>
+                        )}
 
+                        <Divider />
+                        
                         <p>Subject:</p>
                         <CheckboxGroup
                             options={plainOptions}

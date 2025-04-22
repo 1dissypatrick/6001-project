@@ -23,28 +23,21 @@ const CommonHeader = ({ collapsed }) => {
     };
 
     const items = [
+        
         {
             key: '1',
-            label: (
-                <a target="_blank" rel="noopener noreferrer">
-                    Personal Center
-                </a>
-            ),
-        },
-        {
-            key: '2',
             label: (
                 <Link to="/register" rel="noopener noreferrer"> Register </Link>
             ),
         },
         {
-            key: '3',
+            key: '2',
             label: (
                 <Link to="/login" rel="noopener noreferrer"> Login </Link>
             ),
         },
         {
-            key: '4',
+            key: '3',
             label: (
                 <a onClick={logout} rel="noopener noreferrer">
                     Logout
