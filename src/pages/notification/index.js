@@ -40,19 +40,31 @@ const Notification = () => {
         }
     };
 
+    // const markAllAsRead = async () => {
+    //     try {
+    //         const unreadNotifications = notifications.filter(n => !n.read);
+    //         await Promise.all(
+    //             unreadNotifications.map(n => 
+    //                 axios.put(`http://localhost:5001/notifications/${n._id}/mark-read`)
+    //             )
+    //         );
+    //         message.success('All notifications marked as read');
+    //         fetchNotifications();
+    //     } catch (error) {
+    //         console.error('Error marking all as read:', error);
+    //         message.error('Failed to mark all notifications as read');
+    //     }
+    // };
     const markAllAsRead = async () => {
         try {
-            const unreadNotifications = notifications.filter(n => !n.read);
-            await Promise.all(
-                unreadNotifications.map(n => 
-                    axios.put(`http://localhost:5001/notifications/${n._id}/mark-read`)
-                )
+            const response = await axios.put(
+                `http://localhost:5001/notifications/mark-all-read/${username}`
             );
-            message.success('All notifications marked as read');
-            fetchNotifications();
+            message.success(response.data.message);
+            fetchNotifications(); // Refresh the list
         } catch (error) {
             console.error('Error marking all as read:', error);
-            message.error('Failed to mark all notifications as read');
+            message.error(error.response?.data?.message || 'Failed to mark all notifications as read');
         }
     };
 

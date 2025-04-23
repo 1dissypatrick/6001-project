@@ -165,6 +165,24 @@ app.get('/notifications/:username', async (req, res) => {
         res.status(500).json({ message: 'Error fetching notifications' });
     }
 });
+// Add this new endpoint for batch marking notifications as read
+app.put('/notifications/mark-all-read/:username', async (req, res) => {
+    try {
+        const { username } = req.params;
+        const result = await Notification.updateMany(
+            { username, read: false },
+            { $set: { read: true } }
+        );
+        res.status(200).json({ 
+            message: `${result.modifiedCount} notifications marked as read` 
+        });
+    } catch (error) {
+        console.error('Error marking all notifications as read:', error);
+        res.status(500).json({ 
+            message: 'Error marking all notifications as read' 
+        });
+    }
+});
 
 // Get unread count by username
 app.get('/notifications/:username/unread-count', async (req, res) => {
