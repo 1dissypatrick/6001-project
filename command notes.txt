@@ -9,5 +9,6 @@ git push origin master
 
 git add .
 git status
-git commit -m "notification update"
+git commit -m "recommendation click-base update"
 git push origin master
+

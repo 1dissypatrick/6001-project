@@ -38,7 +38,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "start:backend": "node src/backend/server.js",
-    "start:recommend": "node src/backend/recommendationServer.js",
+    "start:recommend": "node src/backend/content-base-recommendationserver.js",
     "start:upload": "node src/backend/uploadServer.js",
     "start:all": "concurrently \"npm start\" \"npm run start:backend\" \"npm run start:upload\" \"npm run start:recommend\""
   },

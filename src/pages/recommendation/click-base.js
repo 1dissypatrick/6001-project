@@ -1,89 +1,103 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Col, Row, Form, message, Image } from 'antd';
-import { UserOutlined } from '@ant-design/icons'; // Import the User icon
+import { UserOutlined } from '@ant-design/icons';
 import axios from 'axios';
-import './index.css'; // Adjust or remove this if you don't have any specific styles yet
+import './index.css';
 
 const Recommendation = () => {
   const [fileData, setFileData] = useState([]);
-  const [clickCounts, setClickCounts] = useState(() => {
-    // Load clickCounts from localStorage if it exists
-    const savedClickCounts = localStorage.getItem('clickCounts');
-    return savedClickCounts ? JSON.parse(savedClickCounts) : {
-      subjects: {},
-      educationLevels: {},
-    };
+  const [clickCounts, setClickCounts] = useState({
+    subjects: {},
+    educationLevels: {},
   });
+  const username = localStorage.getItem('username');
 
-  // Function to fetch files
-  const fetchFiles = async () => {
+  const fetchData = useCallback(async () => {
     try {
-      const { data } = await axios.get('http://localhost:5001/files?all=true');
-      setFileData(data.files);
+      // Fetch files
+      const { data: filesData } = await axios.get('http://localhost:5001/files?all=true');
+      setFileData(filesData.files);
+  
+      // Only fetch user clicks if username exists
+      if (username) {
+        try {
+          const { data: userClicks } = await axios.get(
+            `http://localhost:5002/api/user-clicks/${username}`
+          );
+          setClickCounts(
+            userClicks || {
+              subjects: {},
+              educationLevels: {},
+            }
+          );
+        } catch (error) {
+          console.error('Error fetching user clicks:', error);
+          // Initialize empty click counts if user not found
+          setClickCounts({
+            subjects: {},
+            educationLevels: {},
+          });
+        }
+      }
     } catch (error) {
-      message.error('Error fetching resources.');
+      message.error('Error fetching data.');
+    }
+  }, [username]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const handleUserClick = async (type, value) => {
+    if (!username) return;
+  
+    try {
+      // Update local state immediately for better UX
+      setClickCounts((prev) => ({
+        ...prev,
+        [type]: {
+          ...prev[type],
+          [value]: (prev[type][value] || 0) + 1,
+        },
+      }));
+  
+      // Send to backend
+      await axios.post('http://localhost:5002/api/track-click', {
+        username,
+        type,
+        value,
+      });
+    } catch (error) {
+      console.error('Error tracking click:', error);
     }
   };
 
-  // Fetch files on component mount
-  useEffect(() => {
-    fetchFiles();
-  }, []);
-
-  // Save clickCounts to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem('clickCounts', JSON.stringify(clickCounts));
-  }, [clickCounts]);
-
-  // Function to handle user clicks for tracking
-  const handleUserClick = (type, value) => {
-    setClickCounts((prevCounts) => {
-      const updatedCounts = {
-        ...prevCounts,
-        [type]: {
-          ...prevCounts[type],
-          [value]: (prevCounts[type][value] || 0) + 1, // Increment the count
-        },
-      };
-      return updatedCounts;
-    });
-  };
-
-  // Sort files based on click counts (subjects and education levels)
-  const getSortedFiles = () => {
+  const getSortedFiles = useCallback(() => {
     return [...fileData].sort((a, b) => {
-      const aSubjectCount = (clickCounts.subjects[a.subjects?.[0]] || 0); // Primary subject
-      const bSubjectCount = (clickCounts.subjects[b.subjects?.[0]] || 0);
-
-      const aLevelCount = (clickCounts.educationLevels[a.educationLevel] || 0);
-      const bLevelCount = (clickCounts.educationLevels[b.educationLevel] || 0);
-
-      // Sort by total click counts (subject clicks + education level clicks)
+      const aSubjectCount = clickCounts.subjects[a.subjects?.[0]] || 0;
+      const bSubjectCount = clickCounts.subjects[b.subjects?.[0]] || 0;
+      const aLevelCount = clickCounts.educationLevels[a.educationLevel] || 0;
+      const bLevelCount = clickCounts.educationLevels[b.educationLevel] || 0;
       return bSubjectCount + bLevelCount - (aSubjectCount + aLevelCount);
     });
-  };
+  }, [fileData, clickCounts]);
 
-  // Group files into rows of 4
-  const getRows = (files) => {
-    if (!Array.isArray(files) || files.length === 0) {
-      console.error('fileData is not valid or empty!');
-      return [];
-    }
+  const getRows = useCallback((files) => {
+    if (!Array.isArray(files)) return [];
     const rows = [];
     for (let i = 0; i < files.length; i += 4) {
       rows.push(files.slice(i, i + 4));
     }
     return rows;
-  };
+  }, []);
 
-  // Function to handle file opening
   const handleFileOpen = (file) => {
-    // Track clicks for sorting purposes
     handleUserClick('subjects', file.subjects?.[0]);
     handleUserClick('educationLevels', file.educationLevel);
-
-    // Open the file in a new tab
-    window.open(`http://localhost:5001/uploads/${encodeURIComponent(file.fileName)}`, '_blank');
+    window.open(
+      `http://localhost:5001/uploads/${encodeURIComponent(file.fileName)}`,
+      '_blank'
+    );
   };
 
   return (
@@ -109,7 +123,7 @@ const Recommendation = () => {
                     marginBottom: '15px',
                     overflow: 'hidden',
                     borderRadius: '8px',
-                    backgroundColor: '#f5f5f5' // Fallback background
+                    backgroundColor: '#f5f5f5'
                   }}>
                     <Image
                       width="100%"
@@ -126,7 +140,7 @@ const Recommendation = () => {
                   </div>
                 )}
                 
-                {/* Content container pushed to bottom */}
+                {/* Content container */}
                 <div style={{
                   display: 'flex',
                   flexDirection: 'column',
@@ -135,48 +149,43 @@ const Recommendation = () => {
                   width: '100%'
                 }}>
                   <div style={{ marginTop: 'auto' }}>
-                  <p style={{ marginBottom: '4px' }}>
-                  {/* Document name */}
-                  <h3 style={{ 
-                    color: '#1890ff',
-                    marginBottom: '8px',
-                    wordBreak: 'break-word'
-                  }}>
-                    <button
-                      onClick={() => handleFileOpen(file)}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        padding: 0,
-                        color: '#1890ff',
-                        cursor: 'pointer',
-                        textAlign: 'left',
-                        fontSize: 'inherit',
-                        fontFamily: 'inherit',
-                      }}
-                    >
-                      {file.documentName || file.fileName || 'Untitled Document'}
-                    </button>
-                  </h3>
-                  
-                  {/* Username and date */}
-                  
-
-                    </p>
+                    {/* Fixed the h3 inside p warning by removing the p tag */}
+                    <h3 style={{ 
+                      color: '#1890ff',
+                      marginBottom: '8px',
+                      wordBreak: 'break-word'
+                    }}>
+                      <button
+                        onClick={() => handleFileOpen(file)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          padding: 0,
+                          color: '#1890ff',
+                          cursor: 'pointer',
+                          textAlign: 'left',
+                          fontSize: 'inherit',
+                          fontFamily: 'inherit',
+                        }}
+                      >
+                        {file.documentName || file.fileName || 'Untitled Document'}
+                      </button>
+                    </h3>
+                    
                     <div style={{ 
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginTop: 'auto'
-                  }}>
-                    <span>
-                      <UserOutlined style={{ marginRight: '8px', color: '#666' }} />
-                      {file.username || 'N/A'}
-                    </span>
-                    <span style={{ color: '#999' }}>
-                      {file.date ? new Date(file.date).toLocaleDateString() : 'N/A'}
-                    </span>
-                  </div>
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginTop: 'auto'
+                    }}>
+                      <span>
+                        <UserOutlined style={{ marginRight: '8px', color: '#666' }} />
+                        {file.username || 'N/A'}
+                      </span>
+                      <span style={{ color: '#999' }}>
+                        {file.date ? new Date(file.date).toLocaleDateString() : 'N/A'}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </Form>

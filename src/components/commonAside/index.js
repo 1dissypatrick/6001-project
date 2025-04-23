@@ -173,19 +173,22 @@ const CommonAside = ({ collapsed }) => {
     }
   };
 
-  return (
-    <Sider trigger={null} collapsed={collapsed}>
-      <h3 className="main-container">
-        {collapsed ? 'ER' : 'Education Resource'}
-      </h3>
-      <Menu
-        theme="dark"
-        mode="inline"
-        defaultSelectedKeys={['1']}
-        items={items}
-        onClick={SelectMenu}
-      />
-    </Sider>
+    return(
+<Sider
+  trigger={null}
+  collapsed={collapsed}
+>
+    <h3 className="main-container">{collapsed ? 'ER' : 'Education Resource'}</h3>
+
+    <Menu
+      theme="dark"
+      mode="inline"
+      defaultSelectedKeys={['1']}
+      items={items}
+      onClick={SelectMenu}
+    />
+    
+</Sider>
   );
 };
 
