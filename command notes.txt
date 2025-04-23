@@ -9,5 +9,5 @@ git push origin master
 
 git add .
 git status
-git commit -m "message"
+git commit -m "notification update"
 git push origin master

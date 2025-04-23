@@ -5,7 +5,7 @@ import{createBrowserRouter, Navigate} from 'react-router-dom'
 //import function 
 import Main from '../pages/main'
 import Home from '../pages/home'
-import Recommendation from '../pages/recommendation/index2'
+import Recommendation from '../pages/recommendation/click-base'
 import UploadResource from '../pages/uploadResource'
 import Review from '../pages/other/review'
 import Login from '../pages/login'
@@ -14,7 +14,7 @@ import Register from '../pages/register'
 import Notification from '../pages/notification'
 import SearchResult from '../pages/searchResult'
 import ViewUploadResource from '../pages/viewUploadResource'
-import AiConclusion from '../pages/aiConclusion/index2'
+import AiConclusion from '../pages/aiConclusion/gemini-2.0'
 
 const routes = [
     {

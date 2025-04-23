@@ -47,7 +47,6 @@ const routes = [
         path: '/other',
         label: 'Admin',
         icon: 'SettingOutlined',
-        show: user => user?.role === 'admin',
         children: [
             // {
             //     path: '/other/graphicalStatistics',
