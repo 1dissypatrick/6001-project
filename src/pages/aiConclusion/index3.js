@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layout, Typography, Input, Button, Upload, message, Card, Spin, Space } from 'antd';
+import { Layout, Typography, Input, Button, Upload, message, Card, Spin } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import * as mammoth from 'mammoth';
 import * as pdfjsLib from 'pdfjs-dist/build/pdf';
@@ -18,7 +18,7 @@ const AiConclusion = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isFileLoading, setIsFileLoading] = useState(false);
   const [aiResult, setAiResult] = useState(null);
-  const [activeTab, setActiveTab] = useState('conclusion'); // 'conclusion' or 'keywords'
+
 
   const handleContentChange = (e) => {
     setContent(e.target.value);
@@ -26,15 +26,18 @@ const AiConclusion = () => {
 
   const extractTextFromPdf = async (arrayBuffer) => {
     try {
+      // Load the PDF document
       const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
       const pdf = await loadingTask.promise;
       
       let fullText = '';
       
+      // Extract text from each page
       for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i);
         const textContent = await page.getTextContent();
         
+        // Combine text items
         const pageText = textContent.items
           .map(item => item.str)
           .join(' ')
@@ -140,10 +143,9 @@ const AiConclusion = () => {
     }
   
     setIsLoading(true);
-    setActiveTab('conclusion');
     
     try {
-      const prompt = `Please analyze the following content and generate a concise, professional conclusion in bullet points:\n\n${content}\n\nConclusion:`;
+      const prompt = `Please analyze the following content and generate a concise, professional conclusion:\n\n${content}\n\nConclusion:`;
       
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.REACT_APP_GOOGLE_API_KEY}`, {
         method: 'POST',
@@ -169,46 +171,9 @@ const AiConclusion = () => {
     }
   };
 
-  const findKeywords = async () => {
-    if (!content.trim()) {
-      message.warning('Please input some content first!');
-      return;
-    }
-  
-    setIsLoading(true);
-    setActiveTab('keywords');
-    
-    try {
-      const prompt = `Please find the key words of the content:\n\n${content}\n\n`;
-      
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.REACT_APP_GOOGLE_API_KEY}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: prompt
-            }]
-          }]
-        })
-      });
-  
-      const data = await response.json();
-      setAiResult(data.candidates[0].content.parts[0].text);
-    } catch (error) {
-      console.error('Error finding keywords:', error);
-      message.error('Failed to find keywords. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const clearAll = () => {
     setContent('');
     setAiResult(null);
-    setActiveTab('conclusion');
   };
 
   return (
@@ -223,6 +188,7 @@ const AiConclusion = () => {
 
         <div className="main-content">
           <div className="input-container">
+            
             <TextArea
               className="text-area"
               autoSize={{ minRows: 8 }}
@@ -261,24 +227,14 @@ const AiConclusion = () => {
               <span className="word-count">
                 {content.trim() ? content.trim().split(/\s+/).length : 0} words
               </span>
-              <Space>
-                <Button 
-                  type={activeTab === 'keywords' ? 'primary' : 'default'}
-                  onClick={findKeywords}
-                  disabled={!content.trim() || isFileLoading}
-                  loading={isLoading && activeTab === 'keywords'}
-                >
-                  Find Keywords
-                </Button>
-                <Button 
-                  type={activeTab === 'conclusion' ? 'primary' : 'default'}
-                  onClick={generateConclusion}
-                  disabled={!content.trim() || isFileLoading}
-                  loading={isLoading && activeTab === 'conclusion'}
-                >
-                  Generate Conclusion
-                </Button>
-              </Space>
+              <Button 
+                type="primary" 
+                onClick={generateConclusion}
+                disabled={!content.trim() || isFileLoading}
+                loading={isLoading}
+              >
+                Generate Conclusion
+              </Button>
             </div>
           </div>
         </div>
@@ -286,20 +242,20 @@ const AiConclusion = () => {
         {isLoading && (
           <div className="loading-container">
             <Spin size="large" />
-            <Text>Generating {activeTab === 'conclusion' ? 'conclusion' : 'keywords'}...</Text>
+            <Text>Generating AI conclusion...</Text>
           </div>
         )}
 
         {aiResult && !isLoading && (
           <Card 
-            title={activeTab === 'conclusion' ? "AI Conclusion" : "Key Words"} 
+            title="AI Conclusion" 
             className="result-card"
             extra={[
               <Button 
                 key="copy"
                 onClick={() => {
                   navigator.clipboard.writeText(aiResult);
-                  message.success('Copied to clipboard!');
+                  message.success('Conclusion copied to clipboard!');
                 }}
               >
                 Copy
@@ -307,17 +263,7 @@ const AiConclusion = () => {
             ]}
           >
             <div className="result-content">
-              {activeTab === 'keywords' ? (
-                <div className="keywords-container">
-                  {aiResult.split(',').map((keyword, index) => (
-                    <span key={index} className="keyword-tag">
-                      {keyword.trim()}
-                    </span>
-                  ))}
-                </div>
-              ) : (
-                <Text>{aiResult}</Text>
-              )}
+              <Text>{aiResult}</Text>
             </div>
           </Card>
         )}

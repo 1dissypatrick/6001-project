@@ -1,3 +1,4 @@
+
 const routes = [
     {
         path: '/home',
@@ -39,13 +40,14 @@ const routes = [
         name: 'aiConclusion',
         label: 'AiConclusion',
         icon: 'SolutionOutlined',
-        url: '/aiConclusion/index',
-        show: user => user?.role === 'admin',
+        url: '/aiConclusion/index'
+        
     }, 
     {
         path: '/other',
         label: 'Admin',
         icon: 'SettingOutlined',
+        show: user => user?.role === 'admin',
         children: [
             // {
             //     path: '/other/graphicalStatistics',

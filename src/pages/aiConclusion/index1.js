@@ -20,12 +20,6 @@ const AiConclusion = () => {
   const [isFileLoading, setIsFileLoading] = useState(false);
   const [aiResult, setAiResult] = useState(null);
 
-  // Initialize OpenAI
-  const openai = new OpenAI({
-    apiKey: process.env.REACT_APP_OPENAI_API_KEY,
-    dangerouslyAllowBrowser: true
-  });
-
   const handleContentChange = (e) => {
     setContent(e.target.value);
   };
@@ -142,39 +136,38 @@ const AiConclusion = () => {
     return true;
   };
 
-  const generateConclusion = async () => {
-    if (!content.trim()) {
-      message.warning('Please input some content first!');
-      return;
-    }
+  const client = new OpenAI({
+    apiKey: process.env.REACT_APP_OPENAI_API_KEY,
+    dangerouslyAllowBrowser: true
+});
 
-    setIsLoading(true);
+const generateConclusion = async () => {
+  if (!content.trim()) return message.warning('Please input content first!');
+
+  setIsLoading(true);
+  try {
+    const prompt = `Generate a concise professional conclusion:\n\n${content}`;
     
-    try {
-      const prompt = `Please analyze the following content and generate a concise, professional conclusion:\n\n${content}\n\nConclusion:`;
-      
-      const response = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
-        messages: [
-          { 
-            role: "system", 
-            content: "You are a helpful assistant that generates professional conclusions for documents. " +
-                    "Focus on summarizing key points and providing insightful final thoughts." 
-          },
-          { role: "user", content: prompt }
-        ],
-        temperature: 0.7,
-        max_tokens: 500
-      });
+    const response = await client.chat.completions.create({  // Correct OpenAI API syntax
+      model: "gpt-3.5-turbo",  // Cheaper than GPT-4
+      messages: [
+        { 
+          role: "system", 
+          content: "You generate professional document conclusions." 
+        },
+        { role: "user", content: prompt }
+      ],
+      temperature: 0.7,
+      max_tokens: 150  // Reduce token usage
+    });
 
-      setAiResult(response.choices[0].message.content);
-    } catch (error) {
-      console.error('Error generating conclusion:', error);
-      message.error('Failed to generate conclusion. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    setAiResult(response.choices[0].message.content);
+  } catch (error) {
+    message.error(`Error: ${error.message}`);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const clearAll = () => {
     setContent('');

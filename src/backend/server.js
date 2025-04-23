@@ -27,7 +27,37 @@ const UserSchema = new mongoose.Schema({
     emailAddress: String,
     username: String,
     password: String,
+    role: { type: String, default: 'user' } // 'user' or 'admin'
 });
+
+// Add this admin creation endpoint (run once to create admin)
+app.post('/create-admin', async (req, res) => {
+    try {
+        // Check if admin already exists
+        const existingAdmin = await User.findOne({ username: 'admin' });
+        if (existingAdmin) {
+            return res.status(400).json({ message: 'Admin account already exists' });
+        }
+
+        // Hash the password
+        const hashedPassword = await bcrypt.hash('admin123', SALT_ROUNDS);
+
+        // Create admin user
+        const admin = new User({
+            emailAddress: 'admin@example.com',
+            username: 'admin',
+            password: hashedPassword,
+            role: 'admin'
+        });
+
+        await admin.save();
+        res.status(201).send('Admin account created successfully');
+    } catch (error) {
+        console.error('Error creating admin:', error);
+        res.status(500).json({ message: 'Error creating admin account' });
+    }
+});
+
 
 const User = mongoose.model('User', UserSchema);
 
@@ -75,22 +105,23 @@ app.post('/login', async (req, res) => {
         const user = await User.findOne({ username });
 
         if (user) {
-            // Compare the provided password with the hashed password
             const isPasswordValid = await bcrypt.compare(password, user.password);
             if (isPasswordValid) {
-                return res.status(200).json({ username, message: 'Login successful!' });
-            } else {
-                return res.status(400).json({ message: 'Invalid username or password' });
+                return res.status(200).json({ 
+                    username, 
+                    role: user.role,  // Add this line
+                    message: 'Login successful!' 
+                });
             }
-        } else {
-            return res.status(400).json({ message: 'Invalid username or password' });
         }
+        return res.status(400).json({ message: 'Invalid username or password' });
     } catch (error) {
         console.error('Error during login:', error);
-        res.status(500).json({ message: 'An error occurred while logging in. Please try again later.' });
+        res.status(500).json({ message: 'An error occurred while logging in.' });
     }
 });
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
+
