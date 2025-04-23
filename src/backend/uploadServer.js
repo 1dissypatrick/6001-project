@@ -4,6 +4,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const multer = require('multer');
 const File = require('./models/File'); // Ensure this model includes fields for fileName, documentName, subjects, educationLevel, materialTypes, and date
+const Notification = require('./models/Notification'); 
 const authenticateUser = require('./middleware/authenticateUser');
 
 const app = express();
@@ -107,19 +108,78 @@ app.get('/all-files', async (req, res) => {
     }
 });
 
-app.delete('/files/:id', async (req, res) => {
+// app.delete('/files/:id', async (req, res) => {
+//     try {
+//         const fileId = req.params.id;
+//         const deletedFile = await File.findByIdAndDelete(fileId); // Assuming MongoDB
+//         if (!deletedFile) {
+//             return res.status(404).send({ message: 'File not found' });
+//         }
+//         res.status(200).send({ message: 'File deleted successfully' });
+//     } catch (error) {
+//         res.status(500).send({ message: 'Error deleting file', error });
+//     }
+// });
+
+// Updated delete endpoint in your Express server
+app.delete('/files/:fileId', async (req, res) => {
     try {
-        const fileId = req.params.id;
-        const deletedFile = await File.findByIdAndDelete(fileId); // Assuming MongoDB
-        if (!deletedFile) {
-            return res.status(404).send({ message: 'File not found' });
+        const { fileId } = req.params;
+        
+        // First find the file to get the owner info
+        const file = await File.findOne({ _id: fileId });
+        if (!file) {
+            return res.status(404).json({ message: 'File not found' });
         }
-        res.status(200).send({ message: 'File deleted successfully' });
+
+        // Delete the file
+        await File.deleteOne({ _id: fileId });
+
+        // Create a notification for the user
+        const notification = new Notification({
+            username: file.username, // Using username instead of userId
+            message: `Your file "${file.documentName}" (${file.fileName}) was deleted by an admin`,
+            fileId: file._id,
+            fileName: file.fileName,
+            documentName: file.documentName
+        });
+        await notification.save();
+
+        res.status(200).json({ message: 'File deleted successfully' });
     } catch (error) {
-        res.status(500).send({ message: 'Error deleting file', error });
+        console.error('Error deleting file:', error);
+        res.status(500).json({ message: 'Error deleting file' });
     }
 });
 
+// Get notifications by username
+app.get('/notifications/:username', async (req, res) => {
+    try {
+        const { username } = req.params;
+        const notifications = await Notification.find({ username })
+            .sort({ createdAt: -1 }) // Newest first
+            .exec();
+        res.status(200).json(notifications);
+    } catch (error) {
+        console.error('Error fetching notifications:', error);
+        res.status(500).json({ message: 'Error fetching notifications' });
+    }
+});
+
+// Get unread count by username
+app.get('/notifications/:username/unread-count', async (req, res) => {
+    try {
+        const { username } = req.params;
+        const count = await Notification.countDocuments({ 
+            username, 
+            read: false 
+        });
+        res.status(200).json({ count });
+    } catch (error) {
+        console.error('Error counting unread notifications:', error);
+        res.status(500).json({ message: 'Error counting unread notifications' });
+    }
+});
 
 // Start server
 app.listen(PORT, () => {

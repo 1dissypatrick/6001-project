@@ -1,43 +1,69 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Avatar, Button, Dropdown } from 'antd';
+import { Layout, Avatar, Button, Dropdown, Badge } from 'antd';
 import { MenuFoldOutlined } from '@ant-design/icons';
 import { useDispatch } from 'react-redux';
 import { collapseMenu } from '../../store/reducers/tab';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 import "../commonHeader/index.css";
 
 const { Header } = Layout;
 
 const CommonHeader = ({ collapsed }) => {
-    const [username, setUsername] = useState(''); // State to hold the username
+    const [username, setUsername] = useState('');
+    const [unreadCount, setUnreadCount] = useState(0);
 
     useEffect(() => {
         // Retrieve the username from localStorage
-        const loggedInUsername = localStorage.getItem('username') || 'Guest'; // Fallback to "Guest"
-        setUsername(loggedInUsername); // Update the username in state
+        const loggedInUsername = localStorage.getItem('username') || 'Guest';
+        setUsername(loggedInUsername);
+
+        // Fetch unread notifications count if user is logged in
+        if (loggedInUsername && loggedInUsername !== 'Guest') {
+            fetchUnreadCount();
+        }
     }, []);
 
+    const fetchUnreadCount = async () => {
+        try {
+            const username = localStorage.getItem('username');
+            if (username) {
+                const { data } = await axios.get(`http://localhost:5001/notifications/${username}/unread-count`);
+                setUnreadCount(data.count);
+            }
+        } catch (error) {
+            console.error('Error fetching unread count:', error);
+        }
+    };
+
     const logout = () => {
-        localStorage.removeItem('username'); // Clear username on logout
-        window.location.reload(); // Optionally reload to reset the app state
+        localStorage.removeItem('username');
+        window.location.reload();
     };
 
     const items = [
-        
         {
             key: '1',
             label: (
-                <Link to="/register" rel="noopener noreferrer"> Register </Link>
+                <Link to="/notification" rel="noopener noreferrer">
+                    Notifications {unreadCount > 0 && <Badge count={unreadCount} size="small" />}
+                </Link>
             ),
         },
         {
             key: '2',
             label: (
-                <Link to="/login" rel="noopener noreferrer"> Login </Link>
+                <Link to="/register" rel="noopener noreferrer"> Register </Link>
             ),
         },
         {
             key: '3',
+            label: (
+                <Link to="/login" rel="noopener noreferrer"> Login </Link>
+            ),
+        },
+        {
+            key: '4',
             label: (
                 <a onClick={logout} rel="noopener noreferrer">
                     Logout
@@ -69,10 +95,12 @@ const CommonHeader = ({ collapsed }) => {
             {/* Display username near the dropdown menu */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <span style={{ fontSize: '16px', fontWeight: 'bold', color: 'white' }}>
-                    {username} {/* Show logged-in username */}
+                    {username}
                 </span>
                 <Dropdown menu={{ items }} className="avatar-item">
-                    <Avatar src={<img src={require("../../assets/images/user.png")} alt="User Avatar" />} />
+                    <Badge count={unreadCount} offset={[-5, 5]}>
+                        <Avatar src={<img src={require("../../assets/images/user.png")} alt="User Avatar" />} />
+                    </Badge>
                 </Dropdown>
             </div>
         </Header>

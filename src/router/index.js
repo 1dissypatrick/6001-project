@@ -11,6 +11,7 @@ import Review from '../pages/other/review'
 import Login from '../pages/login'
 import Resource from '../pages/resource'
 import Register from '../pages/register'
+import Notification from '../pages/notification'
 import SearchResult from '../pages/searchResult'
 import ViewUploadResource from '../pages/viewUploadResource'
 import AiConclusion from '../pages/aiConclusion/index2'
@@ -61,6 +62,10 @@ const routes = [
             }
         ]
     },
+    {
+        path: '/notification',
+        Component:Notification
+     },
     {
        path: '/login',
        Component:Login
