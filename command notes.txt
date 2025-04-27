@@ -9,6 +9,6 @@ git push origin master
 
 git add .
 git status
-git commit -m "recommendation click-base update"
+git commit -m "UI design"
 git push origin master
 

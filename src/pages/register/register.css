@@ -1,32 +1,139 @@
-.register-container{
-    width: 430px;
-    border: 1px solid white;
-    margin: 100px auto;
-    padding:35px 35px 15px 35px;
-    background-color: white;
-    border-radius: 15px;
-    box-shadow: 0 0 25px white;
-    box-sizing: border-box;
+@import 'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css';
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.register-page {
+    background: linear-gradient(135deg, #e0e7ff 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
     overflow: hidden;
-    max-width: 450px;
-    background-color: rgb(255, 220, 220, 0.4);
-    padding: 40px;
-    border-radius: 5px;
-    box-shadow: 0px 0px 5px #333;
 }
 
-.register-container .register_title{
-    text-align:center;
-    margin-bottom: 40px;
-    color:black;
-    font-size: 20px;
+.register-page::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('https://img.icons8.com/ios-filled/50/000000/book.png') repeat;
+    background-size: 100px;
+    opacity: 0.05;
+    z-index: 0;
 }
 
-.register-container .el-input{
-    width: 198px;
+.register-container {
+    
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 2.5rem;
+    max-width: 600px;
+    width: 100%;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    z-index: 1;
+    margin: 1rem;
 }
 
-.register-container .register-button{
+.register-title {
+    font-size: 2rem;
+    font-weight: bold;
     text-align: center;
+    color: #2d3748;
+    margin-bottom: 2rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.inputbox {
+    width: 90%;
+    margin: 0 auto;
+}
+
+.input-field {
+    border-radius: 8px !important;
+    padding: 0.5rem 1rem !important;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.input-field:focus {
+    border-color: #1a73e8 !important;
+    box-shadow: 0 0 8px rgba(26, 115, 232, 0.2) !important;
+}
+
+.register-button-container {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.action-button {
+    background-color: #1a73e8 !important;
+    border-color: #1a73e8 !important;
+    border-radius: 8px !important;
+    padding: 0.5rem 2rem !important;
+    height: auto !important;
+    transition: all 0.3s ease;
+    
+}
+
+.action-button:hover {
+    background-color: #1557b0 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.login-link {
+    text-align: center;
+    margin-top: 1rem;
+    color: #4a5568;
+}
+
+.login-link a {
+    color: #1a73e8;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.login-link a:hover {
+    color: #1557b0;
+    text-decoration: underline;
+}
+
+.ant-form-item-label > label {
+    color: #4a5568;
+    font-weight: 500;
+}
+
+@media (max-width: 640px) {
+    .register-container {
+        padding: 1.5rem;
+    }
+
+    .register-title {
+        font-size: 1.5rem;
+    }
+
+    .action-button {
+        padding: 0.5rem 1.5rem !important;
+    }
+
+    .register-button-container {
+        gap: 1rem;
+    }
+
+    .input-field {
+        padding: 0.5rem 0.75rem !important;
+    }
+}

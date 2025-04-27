@@ -178,7 +178,7 @@ const CommonAside = ({ collapsed }) => {
   trigger={null}
   collapsed={collapsed}
 >
-    <h3 className="main-container">{collapsed ? 'ER' : 'Education Resource'}</h3>
+    <h3 className="main-container">{collapsed ? 'ER' : 'Education Resource'}
 
     <Menu
       theme="dark"
@@ -187,7 +187,7 @@ const CommonAside = ({ collapsed }) => {
       items={items}
       onClick={SelectMenu}
     />
-    
+    </h3>
 </Sider>
   );
 };

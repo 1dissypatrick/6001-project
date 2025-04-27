@@ -6,6 +6,9 @@ const multer = require('multer');
 const File = require('./models/File'); // Ensure this model includes fields for fileName, documentName, subjects, educationLevel, materialTypes, and date
 const Notification = require('./models/Notification'); 
 const authenticateUser = require('./middleware/authenticateUser');
+// const natural = require('natural');
+// const { stopwords } = require('natural');
+// const tokenizer = new natural.WordTokenizer();
 
 const app = express();
 const PORT = process.env.UPLOAD_PORT || 5001;
@@ -73,6 +76,71 @@ app.post('/upload', authenticateUser, upload.fields([
     }
 });
 
+// app.use('/uploads', express.static('D:/6000 project/my-app/uploads'));
+
+// // Content processing function
+// const processContent = (contentArray) => {
+//     const content = contentArray.join(' ').toLowerCase();
+//     const tokens = tokenizer.tokenize(content);
+//     return tokens
+//         .filter(token => 
+//             token.length > 3 && 
+//             !stopwords.includes(token) &&
+//             /^[a-z]+$/.test(token)
+//         )
+//         .slice(0, 20);
+// };
+
+// app.post('/upload', authenticateUser, upload.fields([
+//     { name: 'file', maxCount: 1 },
+//     { name: 'coverPage', maxCount: 1 }
+// ]), async (req, res) => {
+//     try {
+//         const { documentName, subjects, educationLevel, materialTypes } = req.body;
+
+//         if (!req.files.file || !req.files.file[0]) {
+//             return res.status(400).send('No file uploaded');
+//         }
+//         if (!documentName || !subjects || !educationLevel || !materialTypes) {
+//             return res.status(400).send('Missing form fields');
+//         }
+
+//         const parsedSubjects = JSON.parse(subjects);
+//         const parsedMaterialTypes = JSON.parse(materialTypes);
+
+//         // Process content for recommendations
+//         const contentKeywords = processContent([
+//             documentName,
+//             ...parsedSubjects,
+//             educationLevel,
+//             ...parsedMaterialTypes
+//         ]);
+
+//         const newFile = new File({
+//             fileName: req.files.file[0].originalname,
+//             documentName,
+//             subjects: parsedSubjects,
+//             materialTypes: parsedMaterialTypes,
+//             educationLevel,
+//             username: req.username,
+//             coverPage: req.files.coverPage ? req.files.coverPage[0].originalname : null,
+//             contentKeywords,
+//             fullText: [
+//                 documentName,
+//                 ...parsedSubjects,
+//                 educationLevel,
+//                 ...parsedMaterialTypes
+//             ].join(' ')
+//         });
+
+//         await newFile.save();
+//         res.status(201).send('Resource uploaded successfully');
+//     } catch (error) {
+//         console.error('Error uploading resource:', error);
+//         res.status(500).send('Error uploading resource');
+//     }
+// });
+
 app.get('/files', async (req, res) => {
     const { all } = req.query; // Check if the 'all' query parameter is provided
     const username = req.headers.username;
@@ -108,20 +176,6 @@ app.get('/all-files', async (req, res) => {
     }
 });
 
-// app.delete('/files/:id', async (req, res) => {
-//     try {
-//         const fileId = req.params.id;
-//         const deletedFile = await File.findByIdAndDelete(fileId); // Assuming MongoDB
-//         if (!deletedFile) {
-//             return res.status(404).send({ message: 'File not found' });
-//         }
-//         res.status(200).send({ message: 'File deleted successfully' });
-//     } catch (error) {
-//         res.status(500).send({ message: 'Error deleting file', error });
-//     }
-// });
-
-// Updated delete endpoint in your Express server
 app.delete('/files/:fileId', async (req, res) => {
     try {
         const { fileId } = req.params;

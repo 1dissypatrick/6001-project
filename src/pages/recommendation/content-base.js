@@ -1,74 +1,92 @@
-import React, { useState, useEffect } from 'react';
-import { Col, Row, Form, message, Image } from 'antd';
-import { UserOutlined } from '@ant-design/icons'; // Import the User icon
+import React, { useState, useEffect, useCallback } from 'react';
+import { Col, Row, Form, message, Image, Typography } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
 import axios from 'axios';
-import './index.css'; // Adjust or remove this if you don't have any specific styles yet
+import './index.css';
 
-const Recommendation = () => {
-  const [fileData, setFileData] = useState([]);
-  const [clickCounts, setClickCounts] = useState(() => {
-    // Load clickCounts from localStorage if it exists
-    const savedClickCounts = localStorage.getItem('clickCounts');
-    return savedClickCounts ? JSON.parse(savedClickCounts) : {
-      subjects: {},
-      educationLevels: {},
-    };
-  });
+const { Text } = Typography;
 
-  // Function to fetch files
-  const fetchFiles = async () => {
+const Recommendation = ({ currentFile }) => {
+  const [recommendations, setRecommendations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const username = localStorage.getItem('username');
+
+  const fetchRecommendations = useCallback(async () => {
     try {
-      const { data } = await axios.get('http://localhost:5001/files?all=true');
-      setFileData(data.files);
+      setLoading(true);
+      
+      if (currentFile) {
+        // Content-based recommendations
+        const { data } = await axios.post(
+          'http://localhost:5002/api/content-recommendations',
+          { 
+            username,
+            currentFileId: currentFile._id 
+          }
+        );
+        setRecommendations(data);
+      } else {
+        // Click-based recommendations (fallback)
+        const { data: files } = await axios.get('http://localhost:5001/files?all=true');
+        const { data: userClicks } = username 
+          ? await axios.get(`http://localhost:5002/api/user-clicks/${username}`)
+          : { data: { subjects: {}, educationLevels: {} } };
+        
+        const sorted = [...files.files].sort((a, b) => {
+          const aSubjectCount = a.subjects.reduce((sum, subject) => 
+            sum + (userClicks.subjects[subject] || 0), 0);
+          const bSubjectCount = b.subjects.reduce((sum, subject) => 
+            sum + (userClicks.subjects[subject] || 0), 0);
+          
+          const aLevelCount = userClicks.educationLevels[a.educationLevel] || 0;
+          const bLevelCount = userClicks.educationLevels[b.educationLevel] || 0;
+          
+          return (bSubjectCount + bLevelCount) - (aSubjectCount + aLevelCount);
+        });
+        
+        setRecommendations(sorted);
+      }
     } catch (error) {
-      message.error('Error fetching resources.');
+      console.error('Error fetching recommendations:', error);
+      message.error('Error fetching recommendations');
+    } finally {
+      setLoading(false);
+    }
+  }, [username, currentFile]);
+
+  const handleUserClick = async (type, value) => {
+    if (!username) return;
+
+    try {
+      await axios.post('http://localhost:5002/api/track-click', {
+        username,
+        type,
+        value,
+      });
+    } catch (error) {
+      console.error('Error tracking click:', error);
     }
   };
 
-  // Fetch files on component mount
-  useEffect(() => {
-    fetchFiles();
-  }, []);
-
-  // Save clickCounts to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem('clickCounts', JSON.stringify(clickCounts));
-  }, [clickCounts]);
-
-  // Function to handle user clicks for tracking
-  const handleUserClick = (type, value) => {
-    setClickCounts((prevCounts) => {
-      const updatedCounts = {
-        ...prevCounts,
-        [type]: {
-          ...prevCounts[type],
-          [value]: (prevCounts[type][value] || 0) + 1, // Increment the count
-        },
-      };
-      return updatedCounts;
+  const handleFileOpen = (file) => {
+    // Track clicks for subjects and education level
+    file.subjects.forEach(subject => {
+      handleUserClick('subjects', subject);
     });
+    handleUserClick('educationLevels', file.educationLevel);
+    
+    window.open(
+      `http://localhost:5001/uploads/${encodeURIComponent(file.fileName)}`,
+      '_blank'
+    );
   };
 
-  // Sort files based on click counts (subjects and education levels)
-  const getSortedFiles = () => {
-    return [...fileData].sort((a, b) => {
-      const aSubjectCount = (clickCounts.subjects[a.subjects?.[0]] || 0); // Primary subject
-      const bSubjectCount = (clickCounts.subjects[b.subjects?.[0]] || 0);
+  useEffect(() => {
+    fetchRecommendations();
+  }, [fetchRecommendations]);
 
-      const aLevelCount = (clickCounts.educationLevels[a.educationLevel] || 0);
-      const bLevelCount = (clickCounts.educationLevels[b.educationLevel] || 0);
-
-      // Sort by total click counts (subject clicks + education level clicks)
-      return bSubjectCount + bLevelCount - (aSubjectCount + aLevelCount);
-    });
-  };
-
-  // Group files into rows of 4
   const getRows = (files) => {
-    if (!Array.isArray(files) || files.length === 0) {
-      console.error('fileData is not valid or empty!');
-      return [];
-    }
+    if (!Array.isArray(files)) return [];
     const rows = [];
     for (let i = 0; i < files.length; i += 4) {
       rows.push(files.slice(i, i + 4));
@@ -76,114 +94,99 @@ const Recommendation = () => {
     return rows;
   };
 
-  // Function to handle file opening
-  const handleFileOpen = (file) => {
-    // Track clicks for sorting purposes
-    handleUserClick('subjects', file.subjects?.[0]);
-    handleUserClick('educationLevels', file.educationLevel);
-
-    // Open the file in a new tab
-    window.open(`http://localhost:5001/uploads/${encodeURIComponent(file.fileName)}`, '_blank');
-  };
-
   return (
     <div style={{ padding: '20px' }}>
-      <h2>Recommended Resources</h2>
-      {getRows(getSortedFiles()).map((row, rowIndex) => (
-        <Row gutter={[16, 24]} key={`row-${rowIndex}`}>
-          {row.map((file, colIndex) => (
-            <Col
-              className="gutter-row"
-              xs={24}
-              sm={12}
-              md={8}
-              lg={6}
-              key={`col-${rowIndex}-${colIndex}`}
-            >
-              <Form className="search-container">
-                {/* Cover Page at the top */}
-                {file.coverPage && (
-                  <div style={{ 
-                    width: '100%', 
-                    height: '200px',
-                    marginBottom: '15px',
-                    overflow: 'hidden',
-                    borderRadius: '8px',
-                    backgroundColor: '#f5f5f5' // Fallback background
-                  }}>
-                    <Image
-                      width="100%"
-                      height="100%"
-                      src={`http://localhost:5001/uploads/${encodeURIComponent(file.coverPage)}`}
-                      alt="Cover Page"
-                      style={{ 
-                        objectFit: 'cover',
-                        width: '100%',
-                        height: '100%'
-                      }}
-                      preview={false}
-                    />
-                  </div>
-                )}
-                
-                {/* Content container pushed to bottom */}
-                <div style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'flex-end',
-                  flexGrow: 1,
-                  width: '100%'
-                }}>
-                  <div style={{ marginTop: 'auto' }}>
-                  <p style={{ marginBottom: '4px' }}>
-                  {/* Document name */}
-                  <h3 style={{ 
-                    color: '#1890ff',
-                    marginBottom: '8px',
-                    wordBreak: 'break-word'
-                  }}>
-                    <button
-                      onClick={() => handleFileOpen(file)}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        padding: 0,
-                        color: '#1890ff',
-                        cursor: 'pointer',
-                        textAlign: 'left',
-                        fontSize: 'inherit',
-                        fontFamily: 'inherit',
-                      }}
-                    >
-                      {file.documentName || file.fileName || 'Untitled Document'}
-                    </button>
-                  </h3>
-                  
-                  {/* Username and date */}
-                  
-
-                    </p>
+      <h2>
+        {currentFile 
+          ? `Similar to "${currentFile.documentName}"` 
+          : 'Recommended Resources'}
+      </h2>
+      
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '40px' }}>
+          <Text type="secondary">Loading recommendations...</Text>
+        </div>
+      ) : recommendations.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '40px' }}>
+          <Text type="secondary">No recommendations found</Text>
+        </div>
+      ) : (
+        getRows(recommendations).map((row, rowIndex) => (
+          <Row gutter={[16, 24]} key={`row-${rowIndex}`}>
+            {row.map((file, colIndex) => (
+              <Col
+                className="gutter-row"
+                xs={24}
+                sm={12}
+                md={8}
+                lg={6}
+                key={`col-${rowIndex}-${colIndex}`}
+              >
+                <Form className="search-container">
+                  {file.coverPage && (
                     <div style={{ 
+                      width: '100%', 
+                      height: '200px',
+                      marginBottom: '15px',
+                      overflow: 'hidden',
+                      borderRadius: '8px',
+                      backgroundColor: '#f5f5f5',
+                      cursor: 'pointer'
+                    }} onClick={() => handleFileOpen(file)}>
+                      <Image
+                        width="100%"
+                        height="100%"
+                        src={`http://localhost:5001/uploads/${encodeURIComponent(file.coverPage)}`}
+                        alt="Cover Page"
+                        style={{ 
+                          objectFit: 'cover',
+                          width: '100%',
+                          height: '100%'
+                        }}
+                        preview={false}
+                      />
+                    </div>
+                  )}
+                  
+                  <div style={{
                     display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginTop: 'auto'
+                    flexDirection: 'column',
+                    justifyContent: 'flex-end',
+                    flexGrow: 1,
+                    width: '100%'
                   }}>
-                    <span>
-                      <UserOutlined style={{ marginRight: '8px', color: '#666' }} />
-                      {file.username || 'N/A'}
-                    </span>
-                    <span style={{ color: '#999' }}>
-                      {file.date ? new Date(file.date).toLocaleDateString() : 'N/A'}
-                    </span>
+                    <div style={{ marginTop: 'auto' }}>
+                      <h3 style={{ 
+                        color: '#1890ff',
+                        marginBottom: '8px',
+                        wordBreak: 'break-word',
+                        cursor: 'pointer'
+                      }} onClick={() => handleFileOpen(file)}>
+                        {file.documentName || file.fileName || 'Untitled Document'}
+                      </h3>
+                      
+                      <div style={{ 
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        marginTop: 'auto'
+                      }}>
+                        <span>
+                          <UserOutlined style={{ marginRight: '8px', color: '#666' }} />
+                          {file.username || 'N/A'}
+                        </span>
+                        <span style={{ color: '#999' }}>
+                          {file.date ? new Date(file.date).toLocaleDateString() : 'N/A'}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  </div>
-                </div>
-              </Form>
-            </Col>
-          ))}
-        </Row>
-      ))}
+                </Form>
+              </Col>
+            ))}
+          </Row>
+        ))
+      )}
     </div>
   );
 };
