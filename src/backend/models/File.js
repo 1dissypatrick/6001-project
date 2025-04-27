@@ -8,8 +8,14 @@ const fileSchema = new mongoose.Schema({
     educationLevel: String,
     date: { type: Date, default: Date.now },
     username: { type: String, required: true },
-    coverPage: String // Store the filename of the cover page image
+    coverPage: String, // Store the filename of the cover page image
+    downloads: { type: Number, default: 0 } // Simple download counter
 });
+
+// Indexes for better performance
+fileSchema.index({ fileName: 1 });
+fileSchema.index({ downloads: -1 }); // For sorting by download count
+fileSchema.index({ date: -1 }); // For sorting by newest
 
 module.exports = mongoose.model('File', fileSchema);
 

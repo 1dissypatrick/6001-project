@@ -82,6 +82,8 @@ const useSearchResult = () => {
         setFileData(updatedFiles);
     };
 
+    
+
     return {
         checkedList,
         selectedLevel,

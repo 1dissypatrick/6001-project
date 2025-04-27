@@ -253,6 +253,8 @@ app.get('/notifications/:username/unread-count', async (req, res) => {
     }
 });
 
+
+
 // Start server
 app.listen(PORT, () => {
     console.log(`Upload server is running on port ${PORT}`);

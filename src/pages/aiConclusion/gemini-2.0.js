@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Layout, Typography, Input, Button, Upload, message, Card, Spin, Space } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
+import { UploadOutlined, BulbOutlined, KeyOutlined, DeleteOutlined } from '@ant-design/icons';
 import * as mammoth from 'mammoth';
 import * as pdfjsLib from 'pdfjs-dist/build/pdf';
 import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.entry';
@@ -215,7 +215,7 @@ const AiConclusion = () => {
     <Layout className="ai-conclusion-container">
       <Content className="content-box">
         <Title level={2} className="title">
-          AI Conclusion and Key Words Generator
+        AI Content Analyzer
         </Title>
         <Text className="subtitle">
           Upload a document or paste your content below to generate an AI-powered conclusion and find key words
@@ -250,6 +250,7 @@ const AiConclusion = () => {
               </Upload>
               <Button 
                 onClick={clearAll}
+                icon={<DeleteOutlined />}
                 style={{ marginLeft: 8 }}
                 disabled={!content && !aiResult}
               >
@@ -267,14 +268,16 @@ const AiConclusion = () => {
                   onClick={findKeywords}
                   disabled={!content.trim() || isFileLoading}
                   loading={isLoading && activeTab === 'keywords'}
+                  icon={<KeyOutlined />}
                 >
-                  Find Keywords
+                  Extract Keywords
                 </Button>
                 <Button 
                   type={activeTab === 'conclusion' ? 'primary' : 'default'}
                   onClick={generateConclusion}
                   disabled={!content.trim() || isFileLoading}
                   loading={isLoading && activeTab === 'conclusion'}
+                  icon={<BulbOutlined />}
                 >
                   Generate Conclusion
                 </Button>

@@ -1,109 +1,258 @@
-
-  
-  .search-button {
-    margin-left: 10px;
-  }
-  
-  .advanced-search {
-    margin-left: 10px;
-    color: #1890ff;
-  }
-  
-  .content {
-    display: flex;
-    margin-top: 20px;
-  }
-  
-  .aside {
-    width: 25%;
-    padding: 10px;
-    border-right: 1px solid #ddd;
-  }
-  
-  .filter-section {
-    margin-bottom: 20px;
-  }
-  
-  .results-body{
-    width: 75%; padding: 10px;
-  }
-  
-  .results-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-  
-  .results-controls label {
-    margin-right: 10px;
-  }
-  
-  .results {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .result-item {
-    display: flex;
-    align-items: flex-start;
-    margin-bottom: 20px;
-    border: 1px solid #ddd;
-    padding: 10px;
-    border-radius: 5px;
-  }
-  
-  .result-details {
-    display: flex;
-    align-items: flex-start;
-    margin-left: 10px;
-  }
-  
-  .result-details img {
-    width: 80px;
-    height: 80px;
-    margin-right: 10px;
-  }
-  
-  .result-details div {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  header {
-    position: sticky; /* Makes the element sticky */
-    top: 0; /* Keeps it at the top of the page */
-    z-index: 1000; /* Ensures it stays above other elements */
-    background-color: white; /* Optional: Keeps background consistent */
-    padding: 10px; /* Adds padding */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow */
+.search-results-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+  min-height: 100vh;
 }
 
-.header-title {
-    display: flex;
-    align-items: center;
-    justify-content: center; /* Center-aligns the title */
-    position: relative; /* Ensures the button is positioned properly */
+header {
+  background: linear-gradient(white);
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  position: sticky; /* Make header sticky */
+  top: 0; /* Stick to the top of the viewport */
+  z-index: 1000; /* Ensure it stays above other content */
 }
 
-.header-title h1 {
-    margin: 0 auto; /* Centers the title */
-    flex-grow: 1; /* Ensures the title occupies available space */
-    text-align: center; /* Ensures it is visually centered */
+.header-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
 }
 
-.back-to-home {
-    position: absolute; /* Positions the button independently */
-    right: 0; /* Aligns the button to the right side */
-    font-size: 16px;
+.back-button {
+  align-self: flex-start;
+  color: black !important;
+}
+
+.back-button:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.page-title {
+  color: black !important;
+  margin: 0 !important;
+  
+}
+
+.search-bar {
+  width: 100%;
+  max-width: 800px;
+}
+
+.main-layout {
+  background: transparent;
+  display: flex;
+  gap: 24px;
+  
+}
+
+.filter-sider {
+  background: transparent;
+  padding-right: 0 !important;
+}
+
+.filter-sider .ant-layout-sider-children {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+
+
+.filter-title {
+  margin-bottom: 16px !important;
+  color: #1a73e8;
+}
+
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.checkbox-group .ant-checkbox-wrapper {
+  margin-left: 0 !important;
+  padding: 8px;
+  border-radius: 4px;
+  transition: all 0.3s;
+}
+
+.checkbox-group .ant-checkbox-wrapper:hover {
+  background-color: #f0f7ff;
+}
+
+.dropdown-button {
+  text-align: left;
+}
+
+.results-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.results-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.results-count {
+  font-size: 16px;
+}
+
+.results-controls {
+  display: flex;
+  
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.result-card {
+  border-radius: 8px !important;
+  transition: all 0.3s;
+}
+
+.result-card .ant-card-body {
+  padding: 16px !important;
+}
+
+.cover-container {
+  width: 100%;
+  height: 180px;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.cover-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .result-content {
-  text-align: left; /* Change to 'left', 'right', or 'justify' as desired */
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.result-header {
+  margin-bottom: 12px;
+}
+
+.result-title {
+  margin-bottom: 8px !important;
+}
+
+.result-title a {
+  color: #1a73e8;
+}
+
+.result-title a:hover {
+  color: #0d47a1;
+}
+
+.result-meta {
+  margin-bottom: 8px;
+}
+
+.rating {
+  display: inline-flex;
+  
+  gap: 4px;
+  font-weight: 500;
+}
+
+.result-details {
+  flex-grow: 1;
+}
+
+/* Add this to your CSS file */
+
+
+.detail-row {
+  display: flex;
+  flex-wrap: wrap;
+
+  margin-bottom: 8px;
   
 }
 
-
-
+.detail-item {
+  display: flex;
+  
 
   
+}
+
+.result-skeleton {
+  padding: 16px;
+  border-radius: 8px;
+  background-color: white;
+}
+
+@media (max-width: 992px) {
+  .main-layout {
+    flex-direction: column;
+  }
+  
+  .filter-sider {
+    width: 100% !important;
+    padding-right: 0;
+  }
+  
+  .filter-card {
+    position: sticky;
+    top: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: none !important; /* This removes the border */
+  }
+}
+  .give-gap{
+    margin-left: 7px;
+  }
+
+@media (max-width: 576px) {
+  .header-content {
+    padding: 0 10px;
+    
+  }
+  
+  .results-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .results-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .cover-container {
+    height: 120px;
+  }
+}
+
+/* Ensure the header stays fixed at the top */
+
+
+
