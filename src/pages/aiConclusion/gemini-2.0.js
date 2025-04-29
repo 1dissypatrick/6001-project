@@ -179,7 +179,7 @@ const AiConclusion = () => {
     setActiveTab('keywords');
     
     try {
-      const prompt = `Please find the key words of the content:\n\n${content}\n\n`;
+      const prompt = `Please find the key words of the content around 50 keywords:\n\n${content}\n\n`;
       
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.REACT_APP_GOOGLE_API_KEY}`, {
         method: 'POST',

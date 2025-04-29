@@ -61,17 +61,17 @@ const educationLevels = [
         description: 'Grades 10-12 (ages 15-18)'
     },
     { 
-        name: 'Community College', 
+        name: 'Community College/Lower Division', 
         icon: <BankOutlined />,
         description: '2-year programs and associate degrees'
     },
     { 
-        name: 'University', 
+        name: 'College/Upper Division', 
         icon: <ExperimentOutlined />,
         description: 'Undergraduate and graduate programs'
     },
     { 
-        name: 'Vocational', 
+        name: 'Career/Technical', 
         icon: <TrophyOutlined />,
         description: 'Career and technical education'
     }

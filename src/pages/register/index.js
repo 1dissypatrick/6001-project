@@ -1,17 +1,19 @@
 import React from "react";
-import { Form, Input, Button, message } from 'antd';
+import { Form, Input, Button, message, Divider } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 import "./register.css";
 import axios from 'axios';
+import { MailOutlined, UserOutlined, LockOutlined } from '@ant-design/icons';
 
 const Register = () => {
     const navigate = useNavigate();
+    const [form] = Form.useForm();
 
     const handleSubmit = async (values) => {
         try {
             await axios.post('http://localhost:5000/register', values);
             message.success('Registration successful! Redirecting to login...');
-            navigate('/login');
+            setTimeout(() => navigate('/login'), 1500);
         } catch (error) {
             if (error.response && error.response.data) {
                 message.error(error.response.data.message);
@@ -28,9 +30,18 @@ const Register = () => {
 
     return (
         <div className="register-page">
-            <Form className="register-container" onFinish={handleSubmit}>
-                <div className="register-title">Welcome to Education Resource</div>
-                <div className="inputbox">
+            <div className="register-card">
+                <div className="register-header">
+                    <h1>Create Your Account</h1>
+                    <p>Join Education Resource to access premium learning materials</p>
+                </div>
+                
+                <Form 
+                    form={form}
+                    className="register-form"
+                    onFinish={handleSubmit}
+                    layout="vertical"
+                >
                     <Form.Item
                         label="Email Address"
                         name="emailAddress"
@@ -39,19 +50,27 @@ const Register = () => {
                             { type: 'email', message: 'Please enter a valid email address!' }
                         ]}
                     >
-                        <Input placeholder="Enter your Email Address" className="input-field" />
+                        <Input 
+                            prefix={<MailOutlined className="input-icon" />}
+                            placeholder="your.email@example.com" 
+                            className="input-field"
+                            size="large"
+                        />
                     </Form.Item>
-                </div>
-                <div className="inputbox">
+
                     <Form.Item
                         label="Username"
                         name="username"
                         rules={[{ required: true, message: 'Please input your username!' }]}
                     >
-                        <Input placeholder="Enter your username" className="input-field" />
+                        <Input 
+                            prefix={<UserOutlined className="input-icon" />}
+                            placeholder="Choose a username" 
+                            className="input-field"
+                            size="large"
+                        />
                     </Form.Item>
-                </div>
-                <div className="inputbox">
+
                     <Form.Item
                         label="Password"
                         name="password"
@@ -59,11 +78,16 @@ const Register = () => {
                             { required: true, message: 'Please input your password!' },
                             { min: 8, message: 'Password must be at least 8 characters long' }
                         ]}
+                        hasFeedback
                     >
-                        <Input.Password placeholder="Enter your password" className="input-field" />
+                        <Input.Password 
+                            prefix={<LockOutlined className="input-icon" />}
+                            placeholder="Create a password" 
+                            className="input-field"
+                            size="large"
+                        />
                     </Form.Item>
-                </div>
-                <div className="inputbox">
+
                     <Form.Item
                         label="Confirm Password"
                         name="confirmPassword"
@@ -79,30 +103,47 @@ const Register = () => {
                                 },
                             }),
                         ]}
+                        hasFeedback
                     >
-                        <Input.Password placeholder="Confirm your password" className="input-field" />
+                        <Input.Password 
+                            prefix={<LockOutlined className="input-icon" />}
+                            placeholder="Confirm your password" 
+                            className="input-field"
+                            size="large"
+                        />
                     </Form.Item>
+
+                    <Form.Item>
+                        <Button
+                            type="primary"
+                            htmlType="submit"
+                            className="register-button"
+                            size="large"
+                            block
+                        >
+                            Create Account
+                        </Button>
+                    </Form.Item>
+
+                    <Divider className="divider">or</Divider>
+
+                    <div className="alternative-actions">
+                        <Button
+                            type="default"
+                            onClick={goBack}
+                            className="back-button"
+                            size="large"
+                            block
+                        >
+                            Return to Home
+                        </Button>
+                    </div>
+                </Form>
+
+                <div className="login-cta">
+                    Already have an account? <Link to="/login" className="login-link">Sign in</Link>
                 </div>
-                <Form.Item className="register-button-container">
-                    <Button
-                        type="primary"
-                        htmlType="submit"
-                        className="action-button"
-                    >
-                        Register
-                    </Button>
-                    <Button
-                        type="primary"
-                        onClick={goBack}
-                        className="action-button"
-                    >
-                        Back
-                    </Button>
-                </Form.Item>
-                <p className="login-link">
-                    Already have an account? <Link to="/login">Login now!</Link>
-                </p>
-            </Form>
+            </div>
         </div>
     );
 };

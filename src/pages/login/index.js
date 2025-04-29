@@ -1,11 +1,13 @@
 import React from "react";
-import { Form, Input, Button, message } from 'antd';
+import { Form, Input, Button, message, Divider } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 import "./login.css";
 import axios from 'axios';
+import { LockOutlined, UserOutlined } from '@ant-design/icons';
 
 const Login = () => {
     const navigate = useNavigate();
+    const [form] = Form.useForm();
 
     const handleSubmit = async (values) => {
         try {
@@ -35,46 +37,75 @@ const Login = () => {
 
     return (
         <div className="login-page">
-            <Form className="login-container" onFinish={handleSubmit}>
-                <div className="login-title">Welcome to Education Resource</div>
-                <div className="inputboxUsername">
-                <Form.Item
-                    label="Username"
-                    name="username"
-                    rules={[{ required: true, message: 'Please input your username!' }]}
-                >
-                    <Input placeholder="Enter your username" className="input-field" />
-                </Form.Item>
+            <div className="login-card">
+                <div className="login-header">
+                    <h1>Welcome Back</h1>
+                    <p>Sign in to access your Education Resource account</p>
                 </div>
-                <div className="inputboxUsername">
-                <Form.Item
-                    label="Password"
-                    name="password"
-                    rules={[{ required: true, message: 'Please input your password!' }]}
+                
+                <Form 
+                    form={form}
+                    className="login-form"
+                    onFinish={handleSubmit}
+                    layout="vertical"
                 >
-                    <Input.Password placeholder="Enter your password" className="input-field" />
-                </Form.Item>
+                    <Form.Item
+                        label="Username"
+                        name="username"
+                        rules={[{ required: true, message: 'Please input your username!' }]}
+                    >
+                        <Input 
+                            prefix={<UserOutlined className="input-icon" />}
+                            placeholder="Enter your username" 
+                            className="input-field"
+                            size="large"
+                        />
+                    </Form.Item>
+                    
+                    <Form.Item
+                        label="Password"
+                        name="password"
+                        rules={[{ required: true, message: 'Please input your password!' }]}
+                    >
+                        <Input.Password 
+                            prefix={<LockOutlined className="input-icon" />}
+                            placeholder="Enter your password" 
+                            className="input-field"
+                            size="large"
+                        />
+                    </Form.Item>
+
+                    <Form.Item>
+                        <Button
+                            type="primary"
+                            htmlType="submit"
+                            className="login-button"
+                            size="large"
+                            block
+                        >
+                            Sign In
+                        </Button>
+                    </Form.Item>
+
+                    <Divider className="divider">or</Divider>
+
+                    <div className="alternative-actions">
+                        <Button
+                            type="default"
+                            onClick={goBack}
+                            className="back-button"
+                            size="large"
+                            block
+                        >
+                            Return to Home
+                        </Button>
+                    </div>
+                </Form>
+
+                <div className="register-cta">
+                    Don't have an account? <Link to="/register" className="register-link">Create account</Link>
                 </div>
-                <Form.Item className="login-button-container">
-                    <Button
-                        type="primary"
-                        htmlType="submit"
-                        className="action-button"
-                    >
-                        Login
-                    </Button>
-                    <Button
-                        type="primary"
-                        onClick={goBack}
-                        className="action-button"
-                    >
-                        Back
-                    </Button>
-                </Form.Item>
-                <p className="register-link">
-                    Don't have an account? <Link to="/register">Register now!</Link>
-                </p>
-            </Form>
+            </div>
         </div>
     );
 };

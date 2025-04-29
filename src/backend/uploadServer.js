@@ -238,6 +238,34 @@ app.put('/notifications/mark-all-read/:username', async (req, res) => {
     }
 });
 
+// Add this endpoint to your backend (server.js or routes file)
+app.put('/notifications/:id/mark-read', async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const updatedNotification = await Notification.findByIdAndUpdate(
+            id,
+            { $set: { read: true } },
+            { new: true } // Return the updated document
+        );
+
+        if (!updatedNotification) {
+            return res.status(404).json({ message: 'Notification not found' });
+        }
+
+        res.status(200).json({
+            message: 'Notification marked as read',
+            notification: updatedNotification
+        });
+    } catch (error) {
+        console.error('Error marking notification as read:', error);
+        res.status(500).json({ 
+            message: 'Error marking notification as read',
+            error: error.message 
+        });
+    }
+});
+
 // Get unread count by username
 app.get('/notifications/:username/unread-count', async (req, res) => {
     try {

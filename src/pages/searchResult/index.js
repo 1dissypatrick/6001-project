@@ -66,9 +66,9 @@ const educationLevels = [
   { name: 'Upper Primary', icon: <ReadOutlined />, color: 'volcano' },
   { name: 'Middle School', icon: <TeamOutlined />, color: 'orange' },
   { name: 'High School', icon: <SolutionOutlined />, color: 'gold' },
-  { name: 'Community College', icon: <BankOutlined />, color: 'lime' },
-  { name: 'University', icon: <ExperimentOutlined />, color: 'green' },
-  { name: 'Vocational', icon: <TrophyOutlined />, color: 'cyan' }
+  { name: 'Community College/Lower Division', icon: <BankOutlined />, color: 'lime' },
+  { name: 'College/Upper Division', icon: <ExperimentOutlined />, color: 'green' },
+  { name: 'Career/Technical', icon: <TrophyOutlined />, color: 'cyan' }
 ];
 
 const fileTypeIcons = {
