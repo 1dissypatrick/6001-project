@@ -12,6 +12,7 @@ const useSearchResult = () => {
     const [fileData, setFileData] = useState([]);
     const [originalFileData, setOriginalFileData] = useState([]);
     const [loading, setLoading] = useState(false);
+    // eslint-disable-next-line no-unused-vars
     const [clickCounts, setClickCounts] = useState({
         subjects: {},
         educationLevels: {},
@@ -163,26 +164,12 @@ const useSearchResult = () => {
     const handleSort = (sort) => setSelectedSort(sort);
 
     const getSortedFiles = useCallback((files) => {
-        if (selectedSort === 'Relevance') {
-            return [...files].sort((a, b) => {
-                const aSubjectCount = clickCounts.subjects[a.subjects?.[0]] || 0;
-                const bSubjectCount = clickCounts.subjects[b.subjects?.[0]] || 0;
-                const aLevelCount = clickCounts.educationLevels[a.educationLevel] || 0;
-                const bLevelCount = clickCounts.educationLevels[b.educationLevel] || 0;
-                const aMaterialCount = clickCounts.materialTypes[a.materialTypes?.[0]] || 0;
-                const bMaterialCount = clickCounts.materialTypes[b.materialTypes?.[0]] || 0;
-                return (
-                    bSubjectCount + bLevelCount + bMaterialCount - 
-                    (aSubjectCount + aLevelCount + aMaterialCount)
-                );
-            });
-        }
         return [...files].sort((a, b) => {
             const dateA = new Date(a.date);
             const dateB = new Date(b.date);
             return selectedSort === 'Date Added Desc' ? dateB - dateA : dateA - dateB;
         });
-    }, [clickCounts, selectedSort]);
+    }, [selectedSort]);
 
     const handleRateChange = (value, index) => {
         const updatedFiles = [...fileData];

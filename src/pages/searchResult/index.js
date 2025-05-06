@@ -105,7 +105,7 @@ const SearchResult = () => {
         getSortedFiles,
     } = useSearchResult();
     const [selectedPageSize, setSelectedPageSize] = useState('10');
-    const [selectedSort, setSelectedSort] = useState('Relevance');
+    const [selectedSort, setSelectedSort] = useState('Date Added Desc');
     const [currentPage, setCurrentPage] = useState(1);
 
     const handlePageSizeChange = (size) => {
@@ -120,8 +120,7 @@ const SearchResult = () => {
         handleSort(sort);
     };
 
-    // Sort and paginate fileData
-    const sortedData = getSortedFiles(fileData, selectedSort);
+    const sortedData = getSortedFiles(fileData);
     const pageSize = parseInt(selectedPageSize);
     const paginatedData = sortedData.slice(
         (currentPage - 1) * pageSize,
@@ -161,7 +160,7 @@ const SearchResult = () => {
 
         return paginatedData.map((file, index) => (
             <motion.div
-                key={file._id || index}
+                key={file._id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.05 }}
@@ -194,7 +193,6 @@ const SearchResult = () => {
                                                 handleFileOpen(file);
                                                 window.open(e.currentTarget.href, '_blank');
                                             }}
-                                            style={{ textDecoration: 'underline' }}
                                         >
                                             {getFileIcon(file.fileName)} {file.documentName || file.fileName || 'Untitled Document'}
                                         </a>
@@ -380,7 +378,6 @@ const SearchResult = () => {
                                     <Dropdown 
                                         menu={{ 
                                             items: [
-                                                { label: 'Relevance', key: 'Relevance' },
                                                 { label: 'Date Added (Latest First)', key: 'Date Added Desc' },
                                                 { label: 'Date Added (Oldest First)', key: 'Date Added Asc' }
                                             ], 
@@ -390,10 +387,8 @@ const SearchResult = () => {
                                     >
                                         <Button>
                                             <Space>
-                                                {selectedSort === 'Relevance' ? 'Relevance' : 
-                                                 selectedSort === 'Date Added Desc' ? 'Date Added (Latest First)' : 'Date Added (Oldest First)'}
-                                                {selectedSort === 'Relevance' ? null : 
-                                                 selectedSort === 'Date Added Desc' ? <SortDescendingOutlined /> : <SortAscendingOutlined />}
+                                                {selectedSort === 'Date Added Desc' ? 'Date Added (Latest First)' : 'Date Added (Oldest First)'}
+                                                {selectedSort === 'Date Added Desc' ? <SortDescendingOutlined /> : <SortAscendingOutlined />}
                                             </Space>
                                         </Button>
                                     </Dropdown>
