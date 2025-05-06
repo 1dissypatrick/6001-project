@@ -9,6 +9,6 @@ git push origin master
 
 git add .
 git status
-git commit -m "UI design2"
+git commit -m "fix bug"
 git push origin master
 

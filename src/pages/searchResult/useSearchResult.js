@@ -11,15 +11,19 @@ const useSearchResult = () => {
     const [selectedSort, setSelectedSort] = useState('Title');
     const [fileData, setFileData] = useState([]);
     const [originalFileData, setOriginalFileData] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     const fetchFiles = useCallback(async () => {
         try {
+            setLoading(true);
             const { data } = await axios.get('http://localhost:5001/files?all=true');
             setFileData(data.files);
             setOriginalFileData(data.files);
             if (location.state) applyFilters(location.state, data.files);
         } catch (error) {
             message.error('Error fetching resources.');
+        } finally {
+            setLoading(false);
         }
     }, [location.state]);
 
@@ -27,7 +31,7 @@ const useSearchResult = () => {
         let filteredFiles = files;
         if (filters.keyword) {
             filteredFiles = filteredFiles.filter(file => 
-                file.fileName.toLowerCase().includes(filters.keyword.toLowerCase())
+                file.documentName?.toLowerCase().includes(filters.keyword.toLowerCase())
             );
         }
         if (filters.subjects?.length > 0) {
@@ -41,6 +45,22 @@ const useSearchResult = () => {
             );
         }
         setFileData(filteredFiles);
+    };
+
+    // Helper function to apply combined subject and education level filters
+    const applyCombinedFilters = (subjects, level, files) => {
+        let filteredFiles = files;
+        if (subjects.length > 0) {
+            filteredFiles = filteredFiles.filter(file =>
+                subjects.some(subject => file.subjects?.includes(subject))
+            );
+        }
+        if (level) {
+            filteredFiles = filteredFiles.filter(
+                file => file.educationLevel === level
+            );
+        }
+        return filteredFiles;
     };
 
     useEffect(() => { fetchFiles() }, [fetchFiles]);
@@ -62,7 +82,6 @@ const useSearchResult = () => {
                 // Simple sort by documentName match position
                 const aIndex = a.documentName.toLowerCase().indexOf(keyword);
                 const bIndex = b.documentName.toLowerCase().indexOf(keyword);
-                
                 // Earlier matches appear first
                 return aIndex - bIndex;
             });
@@ -71,21 +90,14 @@ const useSearchResult = () => {
 
     const onChange = (list) => {
         setCheckedList(list);
-        const filteredFiles = list.length === 0 ? originalFileData : 
-            originalFileData.filter(file => 
-                list.some(subject => file.subjects?.includes(subject))
-            ).sort((a, b) => 
-                list.every(s => a.subjects?.includes(s)) ? -1 : 1
-            );
+        const filteredFiles = applyCombinedFilters(list, selectedLevel, originalFileData);
         setFileData(filteredFiles);
     };
 
     const handleMenuClick = (level) => {
         setSelectedLevel(level);
-        setFileData(level ? 
-            originalFileData.filter(file => file.educationLevel === level) : 
-            originalFileData
-        );
+        const filteredFiles = applyCombinedFilters(checkedList, level, originalFileData);
+        setFileData(filteredFiles);
     };
 
     const handlePageSize = (size) => setSelectedPageSize(size);
@@ -103,6 +115,7 @@ const useSearchResult = () => {
         selectedPageSize,
         selectedSort,
         fileData,
+        loading,
         onSearch,
         onChange,
         handleMenuClick,
