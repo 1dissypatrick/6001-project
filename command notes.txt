@@ -9,6 +9,6 @@ git push origin master
 
 git add .
 git status
-git commit -m "fix bug"
+git commit -m "add material types to recommendation"
 git push origin master
 

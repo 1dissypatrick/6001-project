@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Col, Row, Form, message, Image } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
+import { UserOutlined} from '@ant-design/icons';
 import axios from 'axios';
 import './index.css';
 
@@ -9,6 +9,7 @@ const Recommendation = () => {
   const [clickCounts, setClickCounts] = useState({
     subjects: {},
     educationLevels: {},
+    materialTypes: {}, // Added to track materialTypes clicks
   });
   const username = localStorage.getItem('username');
 
@@ -28,6 +29,7 @@ const Recommendation = () => {
             userClicks || {
               subjects: {},
               educationLevels: {},
+              materialTypes: {}, // Initialize materialTypes
             }
           );
         } catch (error) {
@@ -36,6 +38,7 @@ const Recommendation = () => {
           setClickCounts({
             subjects: {},
             educationLevels: {},
+            materialTypes: {}, // Initialize materialTypes
           });
         }
       }
@@ -49,7 +52,7 @@ const Recommendation = () => {
   }, [fetchData]);
 
   const handleUserClick = async (type, value) => {
-    if (!username) return;
+    if (!username || !value) return; // Skip if no username or value is undefined
   
     try {
       // Update local state immediately for better UX
@@ -78,7 +81,12 @@ const Recommendation = () => {
       const bSubjectCount = clickCounts.subjects[b.subjects?.[0]] || 0;
       const aLevelCount = clickCounts.educationLevels[a.educationLevel] || 0;
       const bLevelCount = clickCounts.educationLevels[b.educationLevel] || 0;
-      return bSubjectCount + bLevelCount - (aSubjectCount + aLevelCount);
+      const aMaterialCount = clickCounts.materialTypes[a.materialTypes?.[0]] || 0; // Count for first materialType
+      const bMaterialCount = clickCounts.materialTypes[b.materialTypes?.[0]] || 0; // Count for first materialType
+      // Sum all counts for ranking
+      return (
+        bSubjectCount + bLevelCount + bMaterialCount - (aSubjectCount + aLevelCount + aMaterialCount)
+      );
     });
   }, [fileData, clickCounts]);
 
@@ -94,6 +102,7 @@ const Recommendation = () => {
   const handleFileOpen = (file) => {
     handleUserClick('subjects', file.subjects?.[0]);
     handleUserClick('educationLevels', file.educationLevel);
+    handleUserClick('materialTypes', file.materialTypes?.[0]); // Track materialTypes click
     window.open(
       `http://localhost:5001/uploads/${encodeURIComponent(file.fileName)}`,
       '_blank'
@@ -149,7 +158,6 @@ const Recommendation = () => {
                   width: '100%'
                 }}>
                   <div style={{ marginTop: 'auto' }}>
-                    {/* Fixed the h3 inside p warning by removing the p tag */}
                     <h3 style={{ 
                       color: '#1890ff',
                       marginBottom: '8px',

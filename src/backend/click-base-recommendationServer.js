@@ -20,7 +20,8 @@ mongoose.connect('mongodb://localhost:27017/myapp', {
 const userClickSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   subjects: { type: Map, of: Number, default: {} },
-  educationLevels: { type: Map, of: Number, default: {} }
+  educationLevels: { type: Map, of: Number, default: {} },
+  materialTypes: { type: Map, of: Number, default: {} }, // Added for materialTypes
 });
 const UserClick = mongoose.model('UserClick', userClickSchema);
 
@@ -35,7 +36,8 @@ app.get('/api/user-clicks/:username', async (req, res) => {
     const data = await UserClick.findOne({ username });
     res.status(200).json(data || {
       subjects: {},
-      educationLevels: {}
+      educationLevels: {},
+      materialTypes: {}, // Include materialTypes in default response
     });
   } catch (error) {
     console.error('Error fetching user clicks:', error);
@@ -50,6 +52,12 @@ app.post('/api/track-click', async (req, res) => {
     
     if (!username || !type || !value) {
       return res.status(400).json({ message: 'Missing required fields' });
+    }
+
+    // Validate type to prevent arbitrary field updates
+    const validTypes = ['subjects', 'educationLevels', 'materialTypes'];
+    if (!validTypes.includes(type)) {
+      return res.status(400).json({ message: 'Invalid type' });
     }
 
     const result = await UserClick.findOneAndUpdate(
