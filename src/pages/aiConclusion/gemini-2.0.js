@@ -143,7 +143,7 @@ const AiConclusion = () => {
     setActiveTab('conclusion');
     
     try {
-      const prompt = `Please analyze the following content and generate a concise, professional conclusion in bullet points:\n\n${content}\n\nConclusion:`;
+      const prompt = `Please analyze the following content and generate a concise, professional conclusion in bullet points (without using any * symbols):\n\n${content}\n\nConclusion:`;
       
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.REACT_APP_GOOGLE_API_KEY}`, {
         method: 'POST',
@@ -160,7 +160,16 @@ const AiConclusion = () => {
       });
   
       const data = await response.json();
-      setAiResult(data.candidates[0].content.parts[0].text);
+      let resultText = data.candidates[0].content.parts[0].text;
+      
+      // 安全移除所有星号和多余空格
+      resultText = resultText
+        .replace(/\*\*/g, '')  // 移除双星号
+        .replace(/\*/g, '')    // 移除单星号
+        .replace(/\s+/g, ' ')  // 合并多个空格
+        .trim();
+      
+      setAiResult(resultText);
     } catch (error) {
       console.error('Error generating conclusion:', error);
       message.error('Failed to generate conclusion. Please try again.');

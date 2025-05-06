@@ -46,11 +46,26 @@ const useSearchResult = () => {
     useEffect(() => { fetchFiles() }, [fetchFiles]);
 
     const onSearch = (value) => {
+        // Reset filters
+        setCheckedList([]);
+        setSelectedLevel('');
+        
         if (!value) return setFileData(originalFileData);
+        
         const keyword = value.toLowerCase();
         const filteredFiles = originalFileData
-            .filter(file => file.fileName.toLowerCase().includes(keyword))
-            .sort((a, b) => a.fileName.toLowerCase().startsWith(keyword) ? -1 : 1);
+            .filter(file => {
+                // Only search in documentName
+                return file.documentName && file.documentName.toLowerCase().includes(keyword);
+            })
+            .sort((a, b) => {
+                // Simple sort by documentName match position
+                const aIndex = a.documentName.toLowerCase().indexOf(keyword);
+                const bIndex = b.documentName.toLowerCase().indexOf(keyword);
+                
+                // Earlier matches appear first
+                return aIndex - bIndex;
+            });
         setFileData(filteredFiles);
     };
 
@@ -81,8 +96,6 @@ const useSearchResult = () => {
         updatedFiles[index].rating = value;
         setFileData(updatedFiles);
     };
-
-    
 
     return {
         checkedList,
