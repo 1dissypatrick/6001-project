@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button } from 'antd';
+import { Table, Button, Image } from 'antd';
 import axios from 'axios';
 import './user.css';
 
@@ -38,6 +38,26 @@ const Review = () => {
         {
             title: 'Username',
             dataIndex: 'username',
+        },
+        {
+            title: 'Cover Page',
+            dataIndex: 'coverPage',
+            render: (coverPage) => (
+                coverPage ? (
+                    <Image
+                        width={100}
+                        src={`http://localhost:5001/uploads/${encodeURIComponent(coverPage)}`}
+                        alt="Cover"
+                        fallback="https://via.placeholder.com/100?text=No+Cover"
+                    />
+                ) : (
+                    <Image
+                        width={100}
+                        src="https://via.placeholder.com/100?text=No+Cover"
+                        alt="No Cover"
+                    />
+                )
+            ),
         },
         {
             title: 'File Name',
@@ -80,8 +100,9 @@ const Review = () => {
             render: (rowData) => (
                 <div className='flex-box'>
                     <Button
-                        type="primary"
-                        onClick={() => deleteFile(rowData._id)} // Delete file button
+                    onClick={() => deleteFile(rowData._id)}
+                        type="primary" danger
+                         // Delete file button
                     >
                         Delete File
                     </Button>

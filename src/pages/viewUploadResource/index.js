@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Table, message, Image } from 'antd';
+import { Table, message, Image, Button, Popconfirm , Modal, Input} from 'antd';
 import axios from 'axios';
 import './user.css';
 
 const ViewUploadResource = () => {
     const [fileData, setFileData] = useState([]);
+    const [editingFile, setEditingFile] = useState(null);
+    const [newDocumentName, setNewDocumentName] = useState('');
 
     useEffect(() => {
         fetchFiles();
@@ -26,7 +28,36 @@ const ViewUploadResource = () => {
             message.error('Error fetching files');
         }
     };
+    const handleEdit = (file) => {
+        setEditingFile(file);
+        setNewDocumentName(file.documentName);
+    };
 
+    const handleUpdate = async () => {
+        try {
+            await axios.patch(`http://localhost:5001/user/files/${editingFile._id}`, {
+                documentName: newDocumentName
+            });
+            message.success('Document name updated successfully');
+            fetchFiles(); // Refresh the file list
+            setEditingFile(null);
+        } catch (error) {
+            console.error('Error updating file:', error);
+            message.error('Error updating file');
+        }
+    };
+
+    const handleDelete = async (fileId) => {
+        try {
+            await axios.delete(`http://localhost:5001/user/files/${fileId}`);
+            message.success('File deleted successfully');
+            fetchFiles(); // Refresh the file list
+        } catch (error) {
+            console.error('Error deleting file:', error);
+            message.error('Error deleting file');
+        }
+    };
+    
     const columns = [
         {
             title: 'Cover Page',
@@ -48,10 +79,7 @@ const ViewUploadResource = () => {
                 )
             ),
         },
-        {
-            title: 'Username',
-            dataIndex: 'username',
-        },
+        
         {
             title: 'File Name',
             dataIndex: 'fileName',
@@ -88,8 +116,32 @@ const ViewUploadResource = () => {
             dataIndex: 'date',
             render: (date) => (date ? new Date(date).toLocaleDateString() : 'N/A'),
         },
+        {
+            title: 'Action',
+            dataIndex: '_id',
+            render: (fileId, record) => (
+                <div className='flex-box'>
+                    <Button 
+                        type="primary" 
+                        onClick={() => handleEdit(record)}
+                        style={{ marginRight: 8 }}
+                    >
+                        Edit
+                    </Button>
+                    <Popconfirm
+                        title="Are you sure you want to delete this file?"
+                        onConfirm={() => handleDelete(fileId)}
+                        okText="Yes"
+                        cancelText="No"
+                    >
+                        <Button type="primary" danger>
+                            Delete
+                        </Button>
+                    </Popconfirm>
+                </div>
+            ),
+        },
     ];
-
     return (
         <div className='user'>
             <Table
@@ -98,8 +150,22 @@ const ViewUploadResource = () => {
                 dataSource={fileData}
                 pagination={{ pageSize: 10 }}
             />
+            
+            <Modal
+                title="Edit Document Name"
+                visible={!!editingFile}
+                onOk={handleUpdate}
+                onCancel={() => setEditingFile(null)}
+                okText="Update"
+                cancelText="Cancel"
+            >
+                <Input
+                    value={newDocumentName}
+                    onChange={(e) => setNewDocumentName(e.target.value)}
+                    placeholder="Enter new document name"
+                />
+            </Modal>
         </div>
     );
 };
-
 export default ViewUploadResource;

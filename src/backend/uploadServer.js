@@ -76,71 +76,6 @@ app.post('/upload', authenticateUser, upload.fields([
     }
 });
 
-// app.use('/uploads', express.static('D:/6000 project/my-app/uploads'));
-
-// // Content processing function
-// const processContent = (contentArray) => {
-//     const content = contentArray.join(' ').toLowerCase();
-//     const tokens = tokenizer.tokenize(content);
-//     return tokens
-//         .filter(token => 
-//             token.length > 3 && 
-//             !stopwords.includes(token) &&
-//             /^[a-z]+$/.test(token)
-//         )
-//         .slice(0, 20);
-// };
-
-// app.post('/upload', authenticateUser, upload.fields([
-//     { name: 'file', maxCount: 1 },
-//     { name: 'coverPage', maxCount: 1 }
-// ]), async (req, res) => {
-//     try {
-//         const { documentName, subjects, educationLevel, materialTypes } = req.body;
-
-//         if (!req.files.file || !req.files.file[0]) {
-//             return res.status(400).send('No file uploaded');
-//         }
-//         if (!documentName || !subjects || !educationLevel || !materialTypes) {
-//             return res.status(400).send('Missing form fields');
-//         }
-
-//         const parsedSubjects = JSON.parse(subjects);
-//         const parsedMaterialTypes = JSON.parse(materialTypes);
-
-//         // Process content for recommendations
-//         const contentKeywords = processContent([
-//             documentName,
-//             ...parsedSubjects,
-//             educationLevel,
-//             ...parsedMaterialTypes
-//         ]);
-
-//         const newFile = new File({
-//             fileName: req.files.file[0].originalname,
-//             documentName,
-//             subjects: parsedSubjects,
-//             materialTypes: parsedMaterialTypes,
-//             educationLevel,
-//             username: req.username,
-//             coverPage: req.files.coverPage ? req.files.coverPage[0].originalname : null,
-//             contentKeywords,
-//             fullText: [
-//                 documentName,
-//                 ...parsedSubjects,
-//                 educationLevel,
-//                 ...parsedMaterialTypes
-//             ].join(' ')
-//         });
-
-//         await newFile.save();
-//         res.status(201).send('Resource uploaded successfully');
-//     } catch (error) {
-//         console.error('Error uploading resource:', error);
-//         res.status(500).send('Error uploading resource');
-//     }
-// });
-
 app.get('/files', async (req, res) => {
     const { all } = req.query; // Check if the 'all' query parameter is provided
     const username = req.headers.username;
@@ -203,6 +138,58 @@ app.delete('/files/:fileId', async (req, res) => {
     } catch (error) {
         console.error('Error deleting file:', error);
         res.status(500).json({ message: 'Error deleting file' });
+    }
+});
+
+app.delete('/user/files/:fileId', async (req, res) => {
+    try {
+        const { fileId } = req.params;
+        
+        // First find the file to get the owner info
+        const file = await File.findOne({ _id: fileId });
+        if (!file) {
+            return res.status(404).json({ message: 'File not found' });
+        }
+
+        // Delete the file
+        await File.deleteOne({ _id: fileId });
+
+        // Create a notification for the user
+        const notification = new Notification({
+            username: file.username, // Using username instead of userId
+            message: `Your file "${file.documentName}" (${file.fileName}) was deleted by yourself`,
+            fileId: file._id,
+            fileName: file.fileName,
+            documentName: file.documentName
+        });
+        await notification.save();
+
+        res.status(200).json({ message: 'File deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting file:', error);
+        res.status(500).json({ message: 'Error deleting file' });
+    }
+});
+
+app.patch('/user/files/:fileId', async (req, res) => {
+    try {
+        const { fileId } = req.params;
+        const { documentName } = req.body;
+
+        const updatedFile = await File.findByIdAndUpdate(
+            fileId,
+            { documentName },
+            { new: true }
+        );
+
+        if (!updatedFile) {
+            return res.status(404).json({ message: 'File not found' });
+        }
+
+        res.status(200).json(updatedFile);
+    } catch (error) {
+        console.error('Error updating file:', error);
+        res.status(500).json({ message: 'Error updating file' });
     }
 });
 
