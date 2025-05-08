@@ -3,13 +3,14 @@ import { Layout, Avatar, Button, Dropdown, Badge } from 'antd';
 import { MenuFoldOutlined } from '@ant-design/icons';
 import { useDispatch } from 'react-redux';
 import { collapseMenu } from '../../store/reducers/tab';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import "../commonHeader/index.css";
 
 const { Header } = Layout;
 
 const CommonHeader = ({ collapsed }) => {
+    const navigate = useNavigate();
     const [username, setUsername] = useState('');
     const [unreadCount, setUnreadCount] = useState(0);
 
@@ -36,9 +37,14 @@ const CommonHeader = ({ collapsed }) => {
         }
     };
 
+    const goBackLogin = () => {
+        // Use replace: true to prevent adding the current page to history
+        navigate('/login', { replace: true });
+    };
+
     const logout = () => {
         localStorage.removeItem('username');
-        window.location.reload();
+        goBackLogin();
     };
 
     const items = [

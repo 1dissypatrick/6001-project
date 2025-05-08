@@ -9,6 +9,6 @@ git push origin master
 
 git add .
 git status
-git commit -m "search count recommendation"
+git commit -m "change logout"
 git push origin master
 

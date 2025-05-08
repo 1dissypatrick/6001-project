@@ -24,9 +24,7 @@ const Register = () => {
         }
     };
 
-    const goBack = () => {
-        navigate('/home');
-    };
+    
 
     return (
         <div className="register-page">
@@ -127,17 +125,7 @@ const Register = () => {
 
                     <Divider className="divider">or</Divider>
 
-                    <div className="alternative-actions">
-                        <Button
-                            type="default"
-                            onClick={goBack}
-                            className="back-button"
-                            size="large"
-                            block
-                        >
-                            Return to Home
-                        </Button>
-                    </div>
+                
                 </Form>
 
                 <div className="login-cta">

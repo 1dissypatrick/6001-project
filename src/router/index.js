@@ -24,7 +24,7 @@ const routes = [
             {
                 //重定向/后default的page
                 path:'/',
-                element:<Navigate to="home" replace/>
+                element:<Navigate to="login" replace/>
             },
             {
                 path:'home',

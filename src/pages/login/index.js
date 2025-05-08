@@ -31,9 +31,7 @@ const Login = () => {
         }
     };
 
-    const goBack = () => {
-        navigate('/home');
-    };
+    
 
     return (
         <div className="login-page">
@@ -89,17 +87,6 @@ const Login = () => {
 
                     <Divider className="divider">or</Divider>
 
-                    <div className="alternative-actions">
-                        <Button
-                            type="default"
-                            onClick={goBack}
-                            className="back-button"
-                            size="large"
-                            block
-                        >
-                            Return to Home
-                        </Button>
-                    </div>
                 </Form>
 
                 <div className="register-cta">
