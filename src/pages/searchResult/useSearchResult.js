@@ -123,22 +123,64 @@ const useSearchResult = () => {
         handleUserClick('materialTypes', file.materialTypes?.[0]);
     };
 
-    const onSearch = (value) => {
+    // const onSearch = (value) => {
+    //     setCheckedList([]);
+    //     setSelectedLevel('');
+    //     if (!value) return setFileData(originalFileData);
+    //     const keyword = value.toLowerCase();
+    //     const filteredFiles = originalFileData
+    //         .filter(file => {
+    //             return file.documentName && file.documentName.toLowerCase().includes(keyword);
+    //         })
+    //         .sort((a, b) => {
+    //             const aIndex = a.documentName.toLowerCase().indexOf(keyword);
+    //             const bIndex = b.documentName.toLowerCase().indexOf(keyword);
+    //             return aIndex - bIndex;
+    //         });
+    //     setFileData(filteredFiles);
+    // };
+    const onSearch = async (value) => {
         setCheckedList([]);
         setSelectedLevel('');
         if (!value) return setFileData(originalFileData);
+      
+        // Track the search query
+        if (username && value) {
+          try {
+            const response = await axios.post('http://localhost:5002/api/track-click', {
+              username,
+              source: 'search',
+              query: value,
+            });
+            // Update local click counts based on backend response
+            if (response.data.subject) {
+              setClickCounts((prev) => ({
+                ...prev,
+                subjects: {
+                  ...prev.subjects,
+                  [response.data.subject]: (prev.subjects[response.data.subject] || 0) + 1,
+                },
+              }));
+            }
+          } catch (error) {
+            console.error('Error tracking search:', error);
+          }
+        }
+      
+        // Existing search logic
         const keyword = value.toLowerCase();
         const filteredFiles = originalFileData
-            .filter(file => {
-                return file.documentName && file.documentName.toLowerCase().includes(keyword);
-            })
-            .sort((a, b) => {
-                const aIndex = a.documentName.toLowerCase().indexOf(keyword);
-                const bIndex = b.documentName.toLowerCase().indexOf(keyword);
-                return aIndex - bIndex;
-            });
+          .filter((file) => {
+            return file.documentName && file.documentName.toLowerCase().includes(keyword);
+          })
+          .sort((a, b) => {
+            const aIndex = a.documentName.toLowerCase().indexOf(keyword);
+            const bIndex = b.documentName.toLowerCase().indexOf(keyword);
+            return aIndex - bIndex;
+          });
         setFileData(filteredFiles);
-    };
+      };
+    
 
     const onChange = (list) => {
         const addedSubjects = list.filter(subject => !checkedList.includes(subject));
