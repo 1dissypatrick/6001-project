@@ -9,7 +9,7 @@ git push origin master
 
 git add .
 git status
-git commit -m "Searching nlp"
+git commit -m "test nlp"
 git push origin master
 
-node testAccuracy.js
+node testNlpAccuracy.js > test_results_nlp.txt

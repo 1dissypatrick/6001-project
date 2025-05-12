@@ -26,7 +26,7 @@ const UploadResource = () => {
     const [checkedList, setCheckedList] = useState([]); // Subject selection
     const [materialList, setMaterialList] = useState([]); // Material Types selection
     const [selectedLevel, setSelectedLevel] = useState('');
-    const [form] = Form.useForm();
+    const [form] = Form.useForm(); // Initialize form instance
 
     const handleBeforeUpload = (file) => {
         setFile(file); // Store the selected file
@@ -115,14 +115,35 @@ const UploadResource = () => {
 
     const menuProps = { items, onClick: handleMenuClick };
 
+    const handleDrop = (event) => {
+        event.preventDefault();
+        const droppedFile = event.dataTransfer.files[0];
+        setFile(droppedFile);
+        setFormVisible(true);
+    };
+
+    const handleDragOver = (event) => {
+        event.preventDefault();
+    };
+
     return (
-        <div className='user space-between'>
+        <div className='user-space-between'>
             {!formVisible ? (
-                <Upload beforeUpload={handleBeforeUpload}>
-                    <Button icon={<UploadOutlined />} type="primary">
-                        Click to Upload
-                    </Button>
-                </Upload>
+                <div
+                    onDrop={handleDrop}
+                    onDragOver={handleDragOver}
+                    style={{ border: '2px dashed #ccc', padding: '20px', textAlign: 'center', height: "400px"}}
+                >
+                    <Upload beforeUpload={handleBeforeUpload}>
+                        <Button icon={<UploadOutlined />} type="primary">
+                            Click to Upload
+                        </Button>
+                    </Upload>
+                    <div style={{ marginTop:"300px"}}>
+                        <p>Drag and drop video files to upload</p>
+                        <p>Your file will be private until you publish them.</p>
+                    </div>
+                </div>
             ) : (
                 <div>
                     <p>

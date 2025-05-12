@@ -2,7 +2,7 @@ const { NlpManager } = require('node-nlp');
 const natural = require('natural');
 const testQueries = require('./testQueries');
 
-// Keyword-based subject mapping (from Bayes classifier)
+// Expanded subject keywords with new subjects
 const subjectKeywords = {
   'Chinese Language Education': [
     'chinese language', 'mandarin', 'cantonese', 'chinese literature', 'hanzi', 'pinyin',
@@ -74,20 +74,43 @@ const subjectKeywords = {
     'writing for college', 'interdisciplinary research', 'critical analysis',
     'general studies course'
   ],
+  'Computer Science Education': [
+    'computer science', 'coding', 'programming', 'algorithms', 'data structures',
+    'software development', 'machine learning', 'artificial intelligence', 'cs',
+    'python programming', 'java programming', 'web development', 'database systems',
+    'cybersecurity', 'computer networks', 'ai', 'ml', 'coding tutorials',
+    'software engineering', 'algorithm design', 'data science', 'comp sci'
+  ],
+  'Environmental Education': [
+    'environmental science', 'ecology', 'sustainability', 'climate change', 'conservation',
+    'environmental studies', 'green energy', 'biodiversity', 'renewable energy',
+    'pollution', 'ecosystems', 'environmental policy', 'climate science', 'eco',
+    'sustainable development', 'wildlife conservation', 'environmental education',
+    'global warming', 'recycling', 'carbon footprint'
+  ],
+  'Health Education': [
+    'health education', 'nutrition', 'mental health', 'public health', 'wellness',
+    'disease prevention', 'healthcare', 'fitness', 'hygiene', 'epidemiology',
+    'healthy lifestyle', 'mental wellness', 'nutrition science', 'health promotion',
+    'preventive medicine', 'health awareness', 'wellbeing', 'diet and nutrition',
+    'stress management', 'public health campaigns'
+  ]
 };
 
-// Initialize NLP manager
-const manager = new NlpManager({ languages: ['en'], forceNER: true, nlu: { useNoneFeature: true } });
+// Initialize NLP manager with stemming
+const manager = new NlpManager({ languages: ['en'], forceNER: true, nlu: { useNoneFeature: true, useStemming: true } });
 
-// Initialize tokenizer for keyword matching
+// Initialize tokenizer and stemmer
 const tokenizer = new natural.WordTokenizer();
+const stemmer = natural.PorterStemmer;
 
-// Train the model with all 200 queries, using bigrams
+// Train the model with all queries, using bigrams and trigrams
 testQueries.forEach(({ query, expected }) => {
   if (expected) {
     const tokens = tokenizer.tokenize(query.toLowerCase());
     const bigrams = natural.NGrams.bigrams(tokens).map(ngram => ngram.join(' '));
-    manager.addDocument('en', [...tokens, ...bigrams].join(' '), expected);
+    const trigrams = natural.NGrams.trigrams(tokens).map(ngram => ngram.join(' '));
+    manager.addDocument('en', [...tokens, ...bigrams, ...trigrams].join(' '), expected);
   } else {
     manager.addDocument('en', query.toLowerCase(), 'None');
   }
@@ -95,99 +118,138 @@ testQueries.forEach(({ query, expected }) => {
 
 // Test accuracy
 const testAccuracy = async () => {
-    console.log('Training node-nlp model...\n');
-    await manager.train();
-    manager.save('model.nlp');
-  
-    console.log('Testing query classification accuracy with hybrid node-nlp...\n');
-    let correct = 0;
-    const total = testQueries.length;
-    const incorrectCases = [];
-  
-    for (const { query, expected } of testQueries) {
-      const tokens = tokenizer.tokenize(query.toLowerCase());
-      let predicted = null;
-      let maxScore = 0;
-      let matchedKeywords = [];
-  
-      // Keyword-based matching with weighted scoring
-      for (const [subject, keywords] of Object.entries(subjectKeywords)) {
-        let score = 0;
-        for (const keyword of keywords) {
-          const keywordTokens = keyword.split(' ');
-          const jaroWinkler = tokens.some((token) =>
-            keywordTokens.some((kt) => natural.JaroWinklerDistance(token, kt) > 0.95)
-          );
-          if (
-            tokens.some((token) => keyword.includes(token) || token.includes(keyword)) ||
-            jaroWinkler
-          ) {
-            score += keywordTokens.length > 1 ? 1.5 : 1.0; // Weight multi-word keywords higher
-            matchedKeywords.push(keyword);
-          }
-        }
-        if (score > maxScore) {
-          maxScore = score;
-          predicted = subject;
-        }
-      }
-  
-      // Fall back to node-nlp if no strong keyword match
-      if (!predicted || maxScore < 2) {
-        const bigrams = natural.NGrams.bigrams(tokens).map((ngram) => ngram.join(' '));
-        const queryText = [...tokens, ...bigrams].join(' ');
-        const response = await manager.process('en', queryText);
-        predicted = response.score > 0.8 ? response.intent : 'None'; // Stricter threshold
-      }
-  
-      const isCorrect = predicted === expected || (expected === null && predicted === 'None');
-  
-      if (isCorrect) {
-        correct++;
-      } else {
-        incorrectCases.push({
-          query,
-          tokens: tokens.join(', '),
-          expected: expected || 'None',
-          predicted,
-          confidence: predicted !== 'None' ? (await manager.process('en', query)).score : 1.0,
-          matchedKeywords: matchedKeywords.join(', ') || 'None',
-        });
-      }
-  
-      console.log(
-        `Query: "${query}"\n` +
-        `  Tokens: "${tokens.join(', ')}"\n` +
-        `  Matched Keywords: "${matchedKeywords.join(', ') || 'None'}"\n` +
-        `  Expected: ${expected || 'None'}\n` +
-        `  Predicted: ${predicted || 'None'}\n` +
-        `  Confidence: ${(predicted !== 'None' ? (await manager.process('en', query)).score : 1.0).toFixed(2)}\n` +
-        `  Correct: ${isCorrect ? 'Yes' : 'No'}\n`
-      );
-    }
-  
-    const accuracy = (correct / total) * 100;
-    console.log(`\nSummary:`);
-    console.log(`Total Queries: ${total}`);
-    console.log(`Correct Predictions: ${correct}`);
-    console.log(`Accuracy: ${accuracy.toFixed(2)}%\n`);
-  
-    if (incorrectCases.length > 0) {
-      console.log('Incorrect Predictions:');
-      incorrectCases.forEach(({ query, tokens, expected, predicted, confidence, matchedKeywords }, index) => {
-        console.log(
-          `${index + 1}. Query: "${query}"\n` +
-          `   Tokens: "${tokens}"\n` +
-          `   Matched Keywords: "${matchedKeywords}"\n` +
-          `   Expected: ${expected}\n` +
-          `   Predicted: ${predicted}\n` +
-          `   Confidence: ${confidence.toFixed(2)}\n`
+  console.log('Training node-nlp model...\n');
+  await manager.train();
+  manager.save('model.nlp');
+
+  console.log('Testing query classification accuracy with hybrid node-nlp...\n');
+  let correct = 0;
+  const total = testQueries.length;
+  const incorrectCases = [];
+
+  for (const { query, expected } of testQueries) {
+    const tokens = tokenizer.tokenize(query.toLowerCase());
+    const stemmedTokens = tokens.map(token => stemmer.stem(token));
+    let predicted = null;
+    let maxScore = 0;
+    let matchedKeywords = [];
+
+    // Keyword-based matching with weighted scoring
+    for (const [subject, keywords] of Object.entries(subjectKeywords)) {
+      let score = 0;
+      const stemmedKeywords = keywords.map(k => k.split(' ').map(w => stemmer.stem(w)).join(' '));
+      for (let i = 0; i < keywords.length; i++) {
+        const keyword = keywords[i];
+        const stemmedKeyword = stemmedKeywords[i];
+        const keywordTokens = keyword.split(' ');
+        const isHighlyDiscriminative = [
+          'pinyin', 'hanzi', 'calculus', 'quantum mechanics', 'coding', 'machine learning',
+          'climate change', 'nutrition', 'data structures'
+        ].includes(keyword);
+        const jaroWinkler = stemmedTokens.some((token) =>
+          stemmedKeyword.split(' ').some((kt) => natural.JaroWinklerDistance(token, kt) > 0.95)
         );
-      });
-    } else {
-      console.log('No incorrect predictions.');
+        if (
+          stemmedTokens.some((token) => stemmedKeyword.includes(token) || token.includes(stemmedKeyword)) ||
+          jaroWinkler
+        ) {
+          score += isHighlyDiscriminative ? 2.0 : (keywordTokens.length > 1 ? 1.5 : 1.0);
+          matchedKeywords.push(keyword);
+        }
+      }
+      if (score > maxScore) {
+        maxScore = score;
+        predicted = subject;
+      } else if (score === maxScore && score > 0) {
+        // Resolve tie by checking for more specific keywords
+        const specificKeywords = subjectKeywords[subject].filter(k => k.includes(' '));
+        const currentSpecific = subjectKeywords[predicted].filter(k => k.includes(' '));
+        predicted = specificKeywords.length > currentSpecific.length ? subject : predicted;
+      }
     }
-  };
+
+    // Combine with node-nlp if no strong keyword match
+    let nlpScore = 0;
+    let nlpIntent = 'None';
+    if (!predicted || maxScore < 2) {
+      const bigrams = natural.NGrams.bigrams(tokens).map((ngram) => ngram.join(' '));
+      const trigrams = natural.NGrams.trigrams(tokens).map((ngram) => ngram.join(' '));
+      const queryText = [...tokens, ...bigrams, ...trigrams].join(' ');
+      const response = await manager.process('en', queryText);
+      nlpScore = response.score;
+      nlpIntent = response.score > 0.85 ? response.intent : 'None';
+      predicted = nlpIntent;
+    } else {
+      // Combine keyword and NLP scores
+      const bigrams = natural.NGrams.bigrams(tokens).map((ngram) => ngram.join(' '));
+      const trigrams = natural.NGrams.trigrams(tokens).map((ngram) => ngram.join(' '));
+      const queryText = [...tokens, ...bigrams, ...trigrams].join(' ');
+      const response = await manager.process('en', queryText);
+      nlpScore = response.score;
+      nlpIntent = response.score > 0.85 ? response.intent : 'None';
+      const combinedScore = maxScore * 0.4 + nlpScore * 0.6;
+      predicted = combinedScore > 0.85 ? (nlpIntent !== 'None' ? nlpIntent : predicted) : 'None';
+    }
+
+    // Post-processing rules
+    if (predicted === 'General Studies' && tokens.some(t => ['coding', 'programming', 'algorithms'].includes(t))) {
+      predicted = 'Computer Science Education';
+    }
+    if (predicted === 'Physical Education' && tokens.some(t => ['nutrition', 'mental health'].includes(t))) {
+      predicted = 'Health Education';
+    }
+
+    const isCorrect = predicted === expected || (expected === null && predicted === 'None');
+
+    if (isCorrect) {
+      correct++;
+    } else {
+      incorrectCases.push({
+        query,
+        tokens: tokens.join(', '),
+        expected: expected || 'None',
+        predicted,
+        keywordScore: maxScore.toFixed(2),
+        nlpScore: nlpScore.toFixed(2),
+        matchedKeywords: matchedKeywords.join(', ') || 'None',
+      });
+    }
+
+    console.log(
+      `Query: "${query}"\n` +
+      `  Tokens: "${tokens.join(', ')}"\n` +
+      `  Matched Keywords: "${matchedKeywords.join(', ') || 'None'}"\n` +
+      `  Expected: ${expected || 'None'}\n` +
+      `  Predicted: ${predicted || 'None'}\n` +
+      `  Keyword Score: ${maxScore.toFixed(2)}\n` +
+      `  NLP Score: ${nlpScore.toFixed(2)}\n` +
+      `  Correct: ${isCorrect ? 'Yes' : 'No'}\n`
+    );
+  }
+
+  const accuracy = (correct / total) * 100;
+  console.log(`\nSummary:`);
+  console.log(`Total Queries: ${total}`);
+  console.log(`Correct Predictions: ${correct}`);
+  console.log(`Accuracy: ${accuracy.toFixed(2)}%\n`);
+
+  if (incorrectCases.length > 0) {
+    console.log('Incorrect Predictions:');
+    incorrectCases.forEach(({ query, tokens, expected, predicted, keywordScore, nlpScore, matchedKeywords }, index) => {
+      console.log(
+        `${index + 1}. Query: "${query}"\n` +
+        `   Tokens: "${tokens}"\n` +
+        `   Matched Keywords: "${matchedKeywords}"\n` +
+        `   Expected: ${expected}\n` +
+        `   Predicted: ${predicted}\n` +
+        `   Keyword Score: ${keywordScore}\n` +
+        `   NLP Score: ${nlpScore}\n`
+      );
+    });
+  } else {
+    console.log('No incorrect predictions.');
+  }
+};
 
 // Run the test
 testAccuracy().catch(err => console.error('Error:', err));
