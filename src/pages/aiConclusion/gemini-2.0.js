@@ -124,9 +124,9 @@ const AiConclusion = () => {
       return Upload.LIST_IGNORE;
     }
     
-    const isLt5M = file.size / 1024 / 1024 < 5;
-    if (!isLt5M) {
-      message.error('File must be smaller than 5MB!');
+    const isLt10M = file.size / 1024 / 1024 < 10;
+    if (!isLt10M) {
+      message.error('File must be smaller than 10MB!');
       return Upload.LIST_IGNORE;
     }
     
