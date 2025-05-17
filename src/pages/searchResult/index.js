@@ -268,7 +268,7 @@ const SearchResult = () => {
                     <Button 
                         type="text" 
                         className="back-button"
-                        onClick={() => navigate('/')} 
+                        onClick={() => navigate('/home')} 
                         icon={<HomeOutlined />}
                     >
                         Back to Home
