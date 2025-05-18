@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NLP Model Accuracy by Category</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <canvas id="accuracyChart" width="800" height="400"></canvas>
+  <script>
+    const ctx = document.getElementById('accuracyChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: [
+          'History',
+          'Chinese Lang',
+          'English Lang',
+          'Mathematics',
+          'Science',
+          'Social & Hum',
+          'Physical Ed',
+          'Arts & Hum',
+          'Business & Comm',
+          'Career & Tech',
+          'General Studies',
+          'No-match'
+        ],
+        datasets: [{
+          label: 'Model Accuracy (%)',
+          data: [100, 100, 100, 100, 100, 100, 100, 97.22, 100, 100, 100, 75],
+          backgroundColor: [
+            '#4CAF50',
+            '#2196F3',
+            '#FFC107',
+            '#F44336',
+            '#9C27B0',
+            '#FF9800',
+            '#009688',
+            '#E91E63',
+            '#3F51B5',
+            '#CDDC39',
+            '#00BCD4',
+            '#FF5722'
+          ],
+          borderColor: [
+            '#388E3C',
+            '#1976D2',
+            '#FFA000',
+            '#D32F2F',
+            '#7B1FA2',
+            '#F57C00',
+            '#00796B',
+            '#C2185B',
+            '#303F9F',
+            '#AFB42B',
+            '#00ACC1',
+            '#E64A19'
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100,
+            title: {
+              display: true,
+              text: 'Accuracy (%)'
+            }
+          },
+          x: {
+            title: {
+              display: true,
+              text: 'Category'
+            },
+            ticks: {
+              maxRotation: 45,
+              minRotation: 45
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top'
+          },
+          title: {
+            display: true,
+            text: 'NLP Model Accuracy by Category (418 Queries, 98.56% Overall)'
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
