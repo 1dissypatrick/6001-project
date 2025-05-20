@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Col, Row, Form, message, Image } from 'antd';
-import { UserOutlined} from '@ant-design/icons';
+import { UserOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import './index.css';
 
@@ -9,17 +9,15 @@ const Recommendation = () => {
   const [clickCounts, setClickCounts] = useState({
     subjects: {},
     educationLevels: {},
-    materialTypes: {}, // Added to track materialTypes clicks
+    materialTypes: {},
   });
   const username = localStorage.getItem('username');
 
   const fetchData = useCallback(async () => {
     try {
-      // Fetch files
       const { data: filesData } = await axios.get('http://localhost:5001/files?all=true');
       setFileData(filesData.files);
   
-      // Only fetch user clicks if username exists
       if (username) {
         try {
           const { data: userClicks } = await axios.get(
@@ -29,16 +27,15 @@ const Recommendation = () => {
             userClicks || {
               subjects: {},
               educationLevels: {},
-              materialTypes: {}, // Initialize materialTypes
+              materialTypes: {},
             }
           );
         } catch (error) {
           console.error('Error fetching user clicks:', error);
-          // Initialize empty click counts if user not found
           setClickCounts({
             subjects: {},
             educationLevels: {},
-            materialTypes: {}, // Initialize materialTypes
+            materialTypes: {},
           });
         }
       }
@@ -52,10 +49,9 @@ const Recommendation = () => {
   }, [fetchData]);
 
   const handleUserClick = async (type, value) => {
-    if (!username || !value) return; // Skip if no username or value is undefined
+    if (!username || !value) return;
   
     try {
-      // Update local state immediately for better UX
       setClickCounts((prev) => ({
         ...prev,
         [type]: {
@@ -64,7 +60,6 @@ const Recommendation = () => {
         },
       }));
   
-      // Send to backend
       await axios.post('http://localhost:5002/api/track-click', {
         username,
         type,
@@ -81,9 +76,8 @@ const Recommendation = () => {
       const bSubjectCount = clickCounts.subjects[b.subjects?.[0]] || 0;
       const aLevelCount = clickCounts.educationLevels[a.educationLevel] || 0;
       const bLevelCount = clickCounts.educationLevels[b.educationLevel] || 0;
-      const aMaterialCount = clickCounts.materialTypes[a.materialTypes?.[0]] || 0; // Count for first materialType
-      const bMaterialCount = clickCounts.materialTypes[b.materialTypes?.[0]] || 0; // Count for first materialType
-      // Sum all counts for ranking
+      const aMaterialCount = clickCounts.materialTypes[a.materialTypes?.[0]] || 0;
+      const bMaterialCount = clickCounts.materialTypes[b.materialTypes?.[0]] || 0;
       return (
         bSubjectCount + bLevelCount + bMaterialCount - (aSubjectCount + aLevelCount + aMaterialCount)
       );
@@ -93,8 +87,8 @@ const Recommendation = () => {
   const getRows = useCallback((files) => {
     if (!Array.isArray(files)) return [];
     const rows = [];
-    for (let i = 0; i < files.length; i += 4) {
-      rows.push(files.slice(i, i + 4));
+    for (let i = 0; i < files.length; i += 6) {
+      rows.push(files.slice(i, i + 6));
     }
     return rows;
   }, []);
@@ -102,7 +96,7 @@ const Recommendation = () => {
   const handleFileOpen = (file) => {
     handleUserClick('subjects', file.subjects?.[0]);
     handleUserClick('educationLevels', file.educationLevel);
-    handleUserClick('materialTypes', file.materialTypes?.[0]); // Track materialTypes click
+    handleUserClick('materialTypes', file.materialTypes?.[0]);
     window.open(
       `http://localhost:5001/uploads/${encodeURIComponent(file.fileName)}`,
       '_blank'
@@ -110,7 +104,7 @@ const Recommendation = () => {
   };
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div className="recommendation-container">
       <h2>Recommended Resources</h2>
       {getRows(getSortedFiles()).map((row, rowIndex) => (
         <Row gutter={[16, 24]} key={`row-${rowIndex}`}>
@@ -119,78 +113,34 @@ const Recommendation = () => {
               className="gutter-row"
               xs={24}
               sm={12}
-              md={8}
-              lg={6}
+              md={6}
+              lg={4}
               key={`col-${rowIndex}-${colIndex}`}
             >
               <Form className="search-container">
-                {/* Cover Page at the top */}
                 {file.coverPage && (
-                  <div style={{ 
-                    width: '100%', 
-                    height: '200px',
-                    marginBottom: '15px',
-                    overflow: 'hidden',
-                    borderRadius: '8px',
-                    backgroundColor: '#f5f5f5'
-                  }}>
+                  <div className="cover-image-container">
                     <Image
                       width="100%"
                       height="100%"
                       src={`http://localhost:5001/uploads/${encodeURIComponent(file.coverPage)}`}
                       alt="Cover Page"
-                      style={{ 
-                        objectFit: 'cover',
-                        width: '100%',
-                        height: '100%'
-                      }}
                       preview={false}
                     />
                   </div>
                 )}
-                
-                {/* Content container */}
-                <div style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'flex-end',
-                  flexGrow: 1,
-                  width: '100%'
-                }}>
-                  <div style={{ marginTop: 'auto' }}>
-                    <h3 style={{ 
-                      color: '#1890ff',
-                      marginBottom: '8px',
-                      wordBreak: 'break-word'
-                    }}>
-                      <button
-                        onClick={() => handleFileOpen(file)}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          padding: 0,
-                          color: '#1890ff',
-                          cursor: 'pointer',
-                          textAlign: 'left',
-                          fontSize: 'inherit',
-                          fontFamily: 'inherit',
-                        }}
-                      >
+                <div className="content-container">
+                  <div className="content-inner">
+                    <h3>
+                      <button onClick={() => handleFileOpen(file)}>
                         {file.documentName || file.fileName || 'Untitled Document'}
                       </button>
                     </h3>
-                    
-                    <div style={{ 
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      marginTop: 'auto'
-                    }}>
+                    <div className="meta-info">
                       <span>
-                        <UserOutlined style={{ marginRight: '8px', color: '#666' }} />
-                        {file.username || 'N/A'}
+                        <UserOutlined /> {file.username || 'N/A'}
                       </span>
-                      <span style={{ color: '#999' }}>
+                      <span>
                         {file.date ? new Date(file.date).toLocaleDateString() : 'N/A'}
                       </span>
                     </div>
